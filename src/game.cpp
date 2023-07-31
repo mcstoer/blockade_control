@@ -17,16 +17,34 @@ static void key_callback(GLFWwindow* window, int key, int scancode, int action, 
 void draw_board_lines() {
     
     int lines = 9;
-    float side_length = 2.0f - 0.2f;
+    int blocks = 8;
 
-    float top = side_length / 2 - 0.1f;
+    float block_width = 0.2f;
+
+    float total_width = block_width * blocks;
+
+    float top = total_width / 2;
     float bottom = -top;
 
-    glBegin(GL_LINES);
+    
+    // Testing drawing triangles
+    glBegin(GL_TRIANGLES);
+    glColor3f(1.0f, 0.0f, 0.0f);
 
-    // Try Vertical Lines First
+    // Top Left
+    glVertex2f(block_width * -4, block_width * 4);
+    // Top Right
+    glVertex2f(block_width * -3, block_width * 4);
+    // Bottom Left
+    glVertex2f(block_width * -4, block_width * 3);
+    glEnd();
+    
+    glBegin(GL_LINES);
+    glColor3f(1.0f, 1.0f, 1.0f);
+
+    // Try drawing lines
     for (int i = -4; i <= 4; i++) {
-        float horizontal_pos = side_length / lines  * i;
+        float horizontal_pos = block_width * i;
         glVertex2f(horizontal_pos, top);
         glVertex2f(horizontal_pos, bottom);
 
