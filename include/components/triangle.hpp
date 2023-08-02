@@ -7,6 +7,8 @@ class Triangle: public Piece {
     
     public:
         Triangle();
+
+        ~Triangle();
     
         void rotate();
 

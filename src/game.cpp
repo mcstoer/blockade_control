@@ -1,6 +1,9 @@
+#include <GL/gl.h>
 #include <GLFW/glfw3.h>
 #include <stdlib.h>
 #include <stdio.h>
+#include <cassert>
+#include <iostream>
 
 #include "components/piece.hpp"
 #include "components/triangle.hpp"
@@ -16,6 +19,36 @@ static void key_callback(GLFWwindow* window, int key, int scancode, int action, 
         glfwSetWindowShouldClose(window, GL_TRUE);
 }
 
+// Given a pointer to a triangle and the board width in blocks
+// draws the triangle
+void draw_triangle(const Triangle* triangle, const int blocks, 
+    const float block_width) {
+    const std::vector<Piece::Point> points = triangle->get_points();
+
+    glBegin(GL_TRIANGLES);
+    glColor3f(0.0f, 1.0f, 0.0f);
+    for (auto pointIter = points.begin(); pointIter != points.end();
+        ++pointIter) {
+        Piece::Point p = *pointIter;
+        // Pieces are centered at 0,0 and have a default width of 2
+        glVertex2f((p.x + 1.0f)/ 2.0f * block_width,
+                   (p.y + 1.0f)/ 2.0f * block_width);
+    }
+
+    glEnd();
+}
+
+void draw_piece(const Piece* piece, const int blocks,
+    const float block_width) {
+
+    if (piece->get_piece_type() == Piece::piece_type::triangle) {
+        draw_triangle(dynamic_cast<const Triangle *>(piece), blocks,
+            block_width);
+    } else {
+        assert(false);
+    }
+}
+
 // Draw lines for game board
 void draw_board_lines() {
     
@@ -29,8 +62,9 @@ void draw_board_lines() {
     float top = total_width / 2;
     float bottom = -top;
 
+    std::vector<Piece*> pieces = {new Triangle()};
 
-    Piece* p = new Triangle();
+    draw_piece(pieces[0], blocks, block_width);
 
     // Testing drawing triangles
     glBegin(GL_TRIANGLES);
