@@ -2,6 +2,9 @@
 #include <stdlib.h>
 #include <stdio.h>
 
+#include "components/piece.hpp"
+#include "components/triangle.hpp"
+
 static void error_callback(int error, const char* description)
 {
     fputs(description, stderr);
@@ -26,7 +29,9 @@ void draw_board_lines() {
     float top = total_width / 2;
     float bottom = -top;
 
-    
+
+    Piece* p = new Triangle();
+
     // Testing drawing triangles
     glBegin(GL_TRIANGLES);
     glColor3f(1.0f, 0.0f, 0.0f);

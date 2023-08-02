@@ -4,10 +4,11 @@
 #include "piece.hpp"
 
 class Triangle: public Piece {
-
-    Triangle();
     
-    void rotate();
+    public:
+        Triangle();
+    
+        void rotate();
 
 };
 

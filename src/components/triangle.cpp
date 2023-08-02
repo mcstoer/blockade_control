@@ -1,5 +1,5 @@
-#include "piece.hpp"
-#include "triangle.hpp"
+#include "components/piece.hpp"
+#include "components/triangle.hpp"
 
 Triangle::Triangle() {
 
