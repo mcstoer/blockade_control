@@ -10,5 +10,15 @@ set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 find_package(glfw3 REQUIRED)
 find_package(OpenGL REQUIRED)
 
-add_executable(game src/game.cpp)
+include_directories("./include")
+
+add_executable(game 
+    src/game.cpp
+    include/components/piece.hpp
+    src/components/piece.cpp
+    include/components/triangle.hpp
+    src/components/triangle.cpp
+)
+
+
 target_link_libraries(game OpenGL::GL glfw)
