@@ -22,28 +22,42 @@ static void key_callback(GLFWwindow* window, int key, int scancode, int action, 
 // Given a pointer to a triangle and the board width in blocks
 // draws the triangle
 void draw_triangle(const Triangle* triangle, const int blocks, 
-    const float block_width) {
+    const float block_width, const int board_x, const int board_y) {
     const std::vector<Piece::Point> points = triangle->get_points();
+
+    const int center_offset = blocks / 2;
 
     glBegin(GL_TRIANGLES);
     glColor3f(0.0f, 1.0f, 0.0f);
     for (auto pointIter = points.begin(); pointIter != points.end();
         ++pointIter) {
-        Piece::Point p = *pointIter;
+        
         // Pieces are centered at 0,0 and have a default width of 2
-        glVertex2f((p.x + 1.0f)/ 2.0f * block_width,
-                   (p.y + 1.0f)/ 2.0f * block_width);
+        Piece::Point p = *pointIter;
+
+        // Need to scale down by half
+        float rescaled_x = (p.x + 1.0f) / 2.0f;
+        float rescaled_y = (p.y + 1.0f) / 2.0f;
+
+        // Shift into position
+        float new_x = (rescaled_x - center_offset + board_x) * block_width;
+
+        // Need to offset by -1 for y due to 0,0 being top left for board
+        // where top left of interface is -4 * board_width, 4 * board_width
+        float new_y = (rescaled_y + center_offset - board_y - 1) * block_width;
+        
+        glVertex2f(new_x, new_y);
     }
 
     glEnd();
 }
 
 void draw_piece(const Piece* piece, const int blocks,
-    const float block_width) {
+    const float block_width, const int board_x, const int board_y) {
 
     if (piece->get_piece_type() == Piece::piece_type::triangle) {
         draw_triangle(dynamic_cast<const Triangle *>(piece), blocks,
-            block_width);
+            block_width, board_x, board_y);
     } else {
         assert(false);
     }
@@ -64,20 +78,11 @@ void draw_board_lines() {
 
     std::vector<Piece*> pieces = {new Triangle()};
 
-    draw_piece(pieces[0], blocks, block_width);
+    draw_piece(pieces[0], blocks, block_width, 0, 0);
+    draw_piece(pieces[0], blocks, block_width, 0, 7);
+    draw_piece(pieces[0], blocks, block_width, 7, 0);
+    draw_piece(pieces[0], blocks, block_width, 7, 7);
 
-    // Testing drawing triangles
-    glBegin(GL_TRIANGLES);
-    glColor3f(1.0f, 0.0f, 0.0f);
-
-    // Top Left
-    glVertex2f(block_width * -4, block_width * 4);
-    // Top Right
-    glVertex2f(block_width * -3, block_width * 4);
-    // Bottom Left
-    glVertex2f(block_width * -4, block_width * 3);
-    glEnd();
-    
     glBegin(GL_LINES);
     glColor3f(1.0f, 1.0f, 1.0f);
 
@@ -124,23 +129,10 @@ int main(void)
         glOrtho(-ratio, ratio, -1.f, 1.f, 1.f, -1.f);
         glMatrixMode(GL_MODELVIEW);
         
+        // Main drawing
         draw_board_lines();
-        /*
-        glBegin(GL_TRIANGLES);
-        glColor3f(1.f, 0.f, 0.f);
-        glVertex3f(-0.6f, -0.4f, 0.f);
-        glColor3f(0.f, 1.f, 0.f);
-        glVertex3f(0.6f, -0.4f, 0.f);
-        glColor3f(0.f, 0.f, 1.f);
-        glVertex3f(0.f, 0.6f, 0.f);
-        glEnd();
-        glBegin(GL_LINES);
-        glColor3f(1.f, 0.f, 0.f);
-        glVertex3f(-1.0f, -0.4f, 0.f);
-        glColor3f(1.f, 0.f, 0.f);
-        glVertex3f(-1.1f, -0.4f, 0.f);
-        glEnd();
-        */
+        
+
         glfwSwapBuffers(window);
         glfwPollEvents();
     }
