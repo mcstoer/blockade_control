@@ -7,6 +7,7 @@
 
 #include "components/piece.hpp"
 #include "components/triangle.hpp"
+#include "components/square.hpp"
 
 // Structure for storing a colour
 struct Color {
@@ -24,6 +25,39 @@ static void key_callback(GLFWwindow* window, int key, int scancode, int action, 
         glfwSetWindowShouldClose(window, GL_TRUE);
 }
 
+// TODO: Clean up drawing code to be able to draw triangles in a generic way
+void draw_triangle_from_points(const std::vector<Piece::Point> points, const int blocks,
+    const float block_width, const int board_x, const int board_y,
+    const Color color) {
+
+    const int center_offset = blocks / 2;
+
+    glBegin(GL_TRIANGLES);
+    glColor3fv(&color.r);
+
+    for (auto pointIter = points.begin(); pointIter != points.end();
+        ++pointIter) {
+        
+        // Pieces are centered at 0,0 and have a default width of 2
+        Piece::Point p = *pointIter;
+
+        // Need to scale down by half
+        float rescaled_x = (p.x + 1.0f) / 2.0f;
+        float rescaled_y = (p.y + 1.0f) / 2.0f;
+
+        // Shift into position
+        float new_x = (rescaled_x - center_offset + board_x) * block_width;
+
+        // Need to offset by -1 for y due to 0,0 being top left for board
+        // where top left of interface is -4 * board_width, 4 * board_width
+        float new_y = (rescaled_y + center_offset - board_y - 1) * block_width;
+        
+        glVertex2f(new_x, new_y);
+    }
+    
+    glEnd();
+}
+
 // Given a pointer to a triangle and the board width in blocks
 // draws the triangle
 void draw_triangle(const Triangle* triangle, const int blocks, 
@@ -31,11 +65,43 @@ void draw_triangle(const Triangle* triangle, const int blocks,
     const Color color) {
     const std::vector<Piece::Point> points = triangle->get_points();
 
+    draw_triangle_from_points(triangle->get_points(), blocks,
+        block_width, board_x, board_y, color);
+}
+
+void draw_quad(const Piece* quad, const int blocks, 
+    const float block_width, const int board_x, const int board_y,
+    const Color color) {
+    const std::vector<Piece::Point> points = quad->get_points();
+
     const int center_offset = blocks / 2;
 
     glBegin(GL_TRIANGLES);
     glColor3fv(&color.r);
-    for (auto pointIter = points.begin(); pointIter != points.end();
+
+    // Draw first triangle of quad
+    for (auto pointIter = points.begin(); pointIter != points.end() - 1;
+        ++pointIter) {
+        
+        // Pieces are centered at 0,0 and have a default width of 2
+        Piece::Point p = *pointIter;
+
+        // Need to scale down by half
+        float rescaled_x = (p.x + 1.0f) / 2.0f;
+        float rescaled_y = (p.y + 1.0f) / 2.0f;
+
+        // Shift into position
+        float new_x = (rescaled_x - center_offset + board_x) * block_width;
+
+        // Need to offset by -1 for y due to 0,0 being top left for board
+        // where top left of interface is -4 * board_width, 4 * board_width
+        float new_y = (rescaled_y + center_offset - board_y - 1) * block_width;
+        
+        glVertex2f(new_x, new_y);
+    }
+    
+    // Draw second triangle of quad
+    for (auto pointIter = points.begin() + 1; pointIter != points.end();
         ++pointIter) {
         
         // Pieces are centered at 0,0 and have a default width of 2
@@ -72,6 +138,9 @@ void draw_piece(const Piece* piece, const int blocks,
     if (piece->get_piece_type() == Piece::piece_type::triangle) {
         draw_triangle(dynamic_cast<const Triangle *>(piece), blocks,
             block_width, board_x, board_y, player_color);
+    } else if (piece->get_piece_type() == Piece::piece_type::square) {
+        draw_quad(piece, blocks,
+            block_width, board_x, board_y, player_color);
     } else {
         assert(false);
     }
@@ -90,7 +159,8 @@ void draw_board_lines() {
     float top = total_width / 2;
     float bottom = -top;
 
-    std::vector<Piece*> pieces = {new Triangle(0), new Triangle(1)};
+    std::vector<Piece*> pieces = {new Triangle(0), new Triangle(1),
+        new Square(0), new Square(1)};
 
     draw_piece(pieces[0], blocks, block_width, 0, 0);
     pieces[0]->rotate();
@@ -102,6 +172,11 @@ void draw_board_lines() {
     draw_piece(pieces[0], blocks, block_width, 7, 7);
     pieces[0]->rotate();
     draw_piece(pieces[0], blocks, block_width, 4, 3);
+    draw_piece(pieces[2], blocks, block_width, 4, 4);
+    pieces[2]->rotate();
+    draw_piece(pieces[2], blocks, block_width, 4, 5);
+    draw_piece(pieces[3], blocks, block_width, 4, 6);
+
 
     glBegin(GL_LINES);
     glColor3f(1.0f, 1.0f, 1.0f);

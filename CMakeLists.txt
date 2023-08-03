@@ -18,6 +18,8 @@ add_executable(game
     src/components/piece.cpp
     include/components/triangle.hpp
     src/components/triangle.cpp
+    include/components/square.hpp
+    src/components/square.cpp
 )
 
 
