@@ -63,65 +63,27 @@ void draw_triangle_from_points(const std::vector<Piece::Point> points, const int
 void draw_triangle(const Triangle* triangle, const int blocks, 
     const float block_width, const int board_x, const int board_y,
     const Color color) {
+    
     const std::vector<Piece::Point> points = triangle->get_points();
 
-    draw_triangle_from_points(triangle->get_points(), blocks,
+    draw_triangle_from_points(points, blocks,
         block_width, board_x, board_y, color);
 }
 
 void draw_quad(const Piece* quad, const int blocks, 
     const float block_width, const int board_x, const int board_y,
     const Color color) {
+
     const std::vector<Piece::Point> points = quad->get_points();
 
-    const int center_offset = blocks / 2;
+    // Form first triangle from first three points
+    draw_triangle_from_points({points[0], points[1], points[2]}, blocks,
+        block_width, board_x, board_y, color);
 
-    glBegin(GL_TRIANGLES);
-    glColor3fv(&color.r);
+    // Form first triangle from last two points and first point
+    draw_triangle_from_points({points[2], points[3], points[0]}, blocks,
+        block_width, board_x, board_y, color);
 
-    // Draw first triangle of quad
-    for (auto pointIter = points.begin(); pointIter != points.end() - 1;
-        ++pointIter) {
-        
-        // Pieces are centered at 0,0 and have a default width of 2
-        Piece::Point p = *pointIter;
-
-        // Need to scale down by half
-        float rescaled_x = (p.x + 1.0f) / 2.0f;
-        float rescaled_y = (p.y + 1.0f) / 2.0f;
-
-        // Shift into position
-        float new_x = (rescaled_x - center_offset + board_x) * block_width;
-
-        // Need to offset by -1 for y due to 0,0 being top left for board
-        // where top left of interface is -4 * board_width, 4 * board_width
-        float new_y = (rescaled_y + center_offset - board_y - 1) * block_width;
-        
-        glVertex2f(new_x, new_y);
-    }
-    
-    // Draw second triangle of quad
-    for (auto pointIter = points.begin() + 1; pointIter != points.end();
-        ++pointIter) {
-        
-        // Pieces are centered at 0,0 and have a default width of 2
-        Piece::Point p = *pointIter;
-
-        // Need to scale down by half
-        float rescaled_x = (p.x + 1.0f) / 2.0f;
-        float rescaled_y = (p.y + 1.0f) / 2.0f;
-
-        // Shift into position
-        float new_x = (rescaled_x - center_offset + board_x) * block_width;
-
-        // Need to offset by -1 for y due to 0,0 being top left for board
-        // where top left of interface is -4 * board_width, 4 * board_width
-        float new_y = (rescaled_y + center_offset - board_y - 1) * block_width;
-        
-        glVertex2f(new_x, new_y);
-    }
-
-    glEnd();
 }
 
 void draw_piece(const Piece* piece, const int blocks,
