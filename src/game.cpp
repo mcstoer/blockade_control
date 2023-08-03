@@ -93,9 +93,15 @@ void draw_board_lines() {
     std::vector<Piece*> pieces = {new Triangle(0), new Triangle(1)};
 
     draw_piece(pieces[0], blocks, block_width, 0, 0);
+    pieces[0]->rotate();
+    pieces[1]->rotate();
     draw_piece(pieces[1], blocks, block_width, 0, 7);
+    pieces[0]->rotate();
     draw_piece(pieces[0], blocks, block_width, 7, 0);
+    pieces[0]->rotate();
     draw_piece(pieces[0], blocks, block_width, 7, 7);
+    pieces[0]->rotate();
+    draw_piece(pieces[0], blocks, block_width, 4, 3);
 
     glBegin(GL_LINES);
     glColor3f(1.0f, 1.0f, 1.0f);
