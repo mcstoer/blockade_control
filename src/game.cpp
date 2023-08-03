@@ -8,6 +8,7 @@
 #include "components/piece.hpp"
 #include "components/triangle.hpp"
 #include "components/square.hpp"
+#include "components/rectangle.hpp"
 
 // Structure for storing a colour
 struct Color {
@@ -25,7 +26,8 @@ static void key_callback(GLFWwindow* window, int key, int scancode, int action, 
         glfwSetWindowShouldClose(window, GL_TRUE);
 }
 
-// TODO: Clean up drawing code to be able to draw triangles in a generic way
+// Draws a triangle on the interface given three points, number of blocks on the board,
+// the width of each block, the location of the triangle on the board and the color.
 void draw_triangle_from_points(const std::vector<Piece::Point> points, const int blocks,
     const float block_width, const int board_x, const int board_y,
     const Color color) {
@@ -100,7 +102,8 @@ void draw_piece(const Piece* piece, const int blocks,
     if (piece->get_piece_type() == Piece::piece_type::triangle) {
         draw_triangle(dynamic_cast<const Triangle *>(piece), blocks,
             block_width, board_x, board_y, player_color);
-    } else if (piece->get_piece_type() == Piece::piece_type::square) {
+    } else if (piece->get_piece_type() == Piece::piece_type::square || 
+               piece->get_piece_type() == Piece::piece_type::rectangle) {
         draw_quad(piece, blocks,
             block_width, board_x, board_y, player_color);
     } else {
@@ -137,8 +140,9 @@ void draw_board_lines(int blocks, float block_width) {
 
 void draw_pieces(int blocks, float block_width) {
     std::vector<Piece*> pieces = {new Triangle(0), new Triangle(1),
-        new Square(0), new Square(1)};
+        new Square(0), new Square(1), new Rectangle(0), new Rectangle(1)};
 
+    // Triangles
     draw_piece(pieces[0], blocks, block_width, 0, 0);
     pieces[0]->rotate();
     pieces[1]->rotate();
@@ -149,11 +153,24 @@ void draw_pieces(int blocks, float block_width) {
     draw_piece(pieces[0], blocks, block_width, 7, 7);
     pieces[0]->rotate();
     draw_piece(pieces[0], blocks, block_width, 4, 3);
+
+    // Squares
     draw_piece(pieces[2], blocks, block_width, 4, 4);
     pieces[2]->rotate();
     draw_piece(pieces[2], blocks, block_width, 4, 5);
     draw_piece(pieces[3], blocks, block_width, 4, 6);
 
+    // Rectangles
+    draw_piece(pieces[4], blocks, block_width, 0, 2);
+    pieces[4]->rotate();
+    pieces[5]->rotate();
+    draw_piece(pieces[5], blocks, block_width, 0, 3);
+    pieces[4]->rotate();
+    draw_piece(pieces[4], blocks, block_width, 0, 4);
+    pieces[4]->rotate();
+    draw_piece(pieces[4], blocks, block_width, 0, 5);
+    pieces[4]->rotate();
+    draw_piece(pieces[4], blocks, block_width, 0, 6);
 }
 
 int main(void)
