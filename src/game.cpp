@@ -109,36 +109,14 @@ void draw_piece(const Piece* piece, const int blocks,
 }
 
 // Draw lines for game board
-void draw_board_lines() {
+void draw_board_lines(int blocks, float block_width) {
     
-    int lines = 9;
-    int blocks = 8;
-
-    float block_width = 0.2f;
+    int lines = blocks + 1;
 
     float total_width = block_width * blocks;
 
     float top = total_width / 2;
     float bottom = -top;
-
-    std::vector<Piece*> pieces = {new Triangle(0), new Triangle(1),
-        new Square(0), new Square(1)};
-
-    draw_piece(pieces[0], blocks, block_width, 0, 0);
-    pieces[0]->rotate();
-    pieces[1]->rotate();
-    draw_piece(pieces[1], blocks, block_width, 0, 7);
-    pieces[0]->rotate();
-    draw_piece(pieces[0], blocks, block_width, 7, 0);
-    pieces[0]->rotate();
-    draw_piece(pieces[0], blocks, block_width, 7, 7);
-    pieces[0]->rotate();
-    draw_piece(pieces[0], blocks, block_width, 4, 3);
-    draw_piece(pieces[2], blocks, block_width, 4, 4);
-    pieces[2]->rotate();
-    draw_piece(pieces[2], blocks, block_width, 4, 5);
-    draw_piece(pieces[3], blocks, block_width, 4, 6);
-
 
     glBegin(GL_LINES);
     glColor3f(1.0f, 1.0f, 1.0f);
@@ -157,13 +135,34 @@ void draw_board_lines() {
     glEnd();
 }
 
+void draw_pieces(int blocks, float block_width) {
+    std::vector<Piece*> pieces = {new Triangle(0), new Triangle(1),
+        new Square(0), new Square(1)};
+
+    draw_piece(pieces[0], blocks, block_width, 0, 0);
+    pieces[0]->rotate();
+    pieces[1]->rotate();
+    draw_piece(pieces[1], blocks, block_width, 0, 7);
+    pieces[0]->rotate();
+    draw_piece(pieces[0], blocks, block_width, 7, 0);
+    pieces[0]->rotate();
+    draw_piece(pieces[0], blocks, block_width, 7, 7);
+    pieces[0]->rotate();
+    draw_piece(pieces[0], blocks, block_width, 4, 3);
+    draw_piece(pieces[2], blocks, block_width, 4, 4);
+    pieces[2]->rotate();
+    draw_piece(pieces[2], blocks, block_width, 4, 5);
+    draw_piece(pieces[3], blocks, block_width, 4, 6);
+
+}
+
 int main(void)
 {
     GLFWwindow* window;
     glfwSetErrorCallback(error_callback);
     if (!glfwInit())
         exit(EXIT_FAILURE);
-    window = glfwCreateWindow(960, 720, "Simple example", NULL, NULL);
+    window = glfwCreateWindow(960, 720, "Blockade Control", NULL, NULL);
     if (!window)
     {
         glfwTerminate();
@@ -171,6 +170,12 @@ int main(void)
     }
     glfwMakeContextCurrent(window);
     glfwSetKeyCallback(window, key_callback);
+
+    // Game Settings
+    int blocks = 8;
+
+    // Graphic Settings
+    float block_width = 0.2f;
 
     // Main rendering loop
     while (!glfwWindowShouldClose(window))
@@ -187,7 +192,8 @@ int main(void)
         glMatrixMode(GL_MODELVIEW);
         
         // Main drawing
-        draw_board_lines();
+        draw_pieces(blocks, block_width);
+        draw_board_lines(blocks, block_width);
         
 
         glfwSwapBuffers(window);
