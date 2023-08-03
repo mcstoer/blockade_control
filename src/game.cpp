@@ -8,6 +8,11 @@
 #include "components/piece.hpp"
 #include "components/triangle.hpp"
 
+// Structure for storing a colour
+struct Color {
+    GLfloat r, g, b;
+};
+
 static void error_callback(int error, const char* description)
 {
     fputs(description, stderr);
@@ -22,13 +27,14 @@ static void key_callback(GLFWwindow* window, int key, int scancode, int action, 
 // Given a pointer to a triangle and the board width in blocks
 // draws the triangle
 void draw_triangle(const Triangle* triangle, const int blocks, 
-    const float block_width, const int board_x, const int board_y) {
+    const float block_width, const int board_x, const int board_y,
+    const Color color) {
     const std::vector<Piece::Point> points = triangle->get_points();
 
     const int center_offset = blocks / 2;
 
     glBegin(GL_TRIANGLES);
-    glColor3f(0.0f, 1.0f, 0.0f);
+    glColor3fv(&color.r);
     for (auto pointIter = points.begin(); pointIter != points.end();
         ++pointIter) {
         
@@ -55,9 +61,17 @@ void draw_triangle(const Triangle* triangle, const int blocks,
 void draw_piece(const Piece* piece, const int blocks,
     const float block_width, const int board_x, const int board_y) {
 
+    Color player_color;
+
+    if (piece->get_owner_id() == 0) {
+        player_color = Color{1.0f, 0.0f, 0.0f};
+    } else {
+        player_color = Color{0.0f, 0.0f, 1.0f};
+    }
+
     if (piece->get_piece_type() == Piece::piece_type::triangle) {
         draw_triangle(dynamic_cast<const Triangle *>(piece), blocks,
-            block_width, board_x, board_y);
+            block_width, board_x, board_y, player_color);
     } else {
         assert(false);
     }
@@ -76,10 +90,10 @@ void draw_board_lines() {
     float top = total_width / 2;
     float bottom = -top;
 
-    std::vector<Piece*> pieces = {new Triangle()};
+    std::vector<Piece*> pieces = {new Triangle(0), new Triangle(1)};
 
     draw_piece(pieces[0], blocks, block_width, 0, 0);
-    draw_piece(pieces[0], blocks, block_width, 0, 7);
+    draw_piece(pieces[1], blocks, block_width, 0, 7);
     draw_piece(pieces[0], blocks, block_width, 7, 0);
     draw_piece(pieces[0], blocks, block_width, 7, 7);
 

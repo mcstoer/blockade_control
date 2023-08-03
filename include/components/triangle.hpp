@@ -6,7 +6,7 @@
 class Triangle: public Piece {
     
     public:
-        Triangle();
+        Triangle(int owner_id);
 
         ~Triangle();
     
