@@ -244,6 +244,7 @@ int main(void)
         
         // Main drawing
         //draw_pieces(blocks, block_width);
+        board.clear();
         draw_board_pieces(board, blocks, block_width);
         draw_board_lines(blocks, block_width);
         

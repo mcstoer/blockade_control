@@ -34,5 +34,6 @@ class Board {
     private:
         board_type board_;
 
+        void place_initial_squares();
 
 };
