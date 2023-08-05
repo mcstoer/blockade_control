@@ -6,6 +6,7 @@ set(CMAKE_CXX_STANDARD_REQUIRED true)
 set(CMAKE_VERBOSE_MAKEFILE ON)
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
+include(Sanitizers.cmake)
 
 find_package(glfw3 REQUIRED)
 find_package(OpenGL REQUIRED)
@@ -22,6 +23,8 @@ add_executable(game
     src/components/square.cpp
     include/components/rectangle.hpp
     src/components/rectangle.cpp
+    include/board.hpp
+    src/board.cpp
 )
 
 

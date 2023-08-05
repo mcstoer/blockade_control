@@ -1,5 +1,6 @@
 #include <GL/gl.h>
 #include <GLFW/glfw3.h>
+#include <memory>
 #include <stdlib.h>
 #include <stdio.h>
 #include <cassert>
@@ -9,6 +10,8 @@
 #include "components/triangle.hpp"
 #include "components/square.hpp"
 #include "components/rectangle.hpp"
+#include "board.hpp"
+
 
 // Structure for storing a colour
 struct Color {
@@ -62,7 +65,7 @@ void draw_triangle_from_points(const std::vector<Piece::Point> points, const int
 
 // Given a pointer to a triangle and the board width in blocks
 // draws the triangle
-void draw_triangle(const Triangle* triangle, const int blocks, 
+void draw_triangle(const std::shared_ptr<Triangle> triangle, const int blocks, 
     const float block_width, const int board_x, const int board_y,
     const Color color) {
     
@@ -72,7 +75,7 @@ void draw_triangle(const Triangle* triangle, const int blocks,
         block_width, board_x, board_y, color);
 }
 
-void draw_quad(const Piece* quad, const int blocks, 
+void draw_quad(const std::shared_ptr<Piece> quad, const int blocks, 
     const float block_width, const int board_x, const int board_y,
     const Color color) {
 
@@ -88,7 +91,7 @@ void draw_quad(const Piece* quad, const int blocks,
 
 }
 
-void draw_piece(const Piece* piece, const int blocks,
+void draw_piece(const std::shared_ptr<Piece> piece, const int blocks,
     const float block_width, const int board_x, const int board_y) {
 
     Color player_color;
@@ -100,7 +103,7 @@ void draw_piece(const Piece* piece, const int blocks,
     }
 
     if (piece->get_piece_type() == Piece::piece_type::triangle) {
-        draw_triangle(dynamic_cast<const Triangle *>(piece), blocks,
+        draw_triangle(std::dynamic_pointer_cast<Triangle>(piece), blocks,
             block_width, board_x, board_y, player_color);
     } else if (piece->get_piece_type() == Piece::piece_type::square || 
                piece->get_piece_type() == Piece::piece_type::rectangle) {
@@ -138,9 +141,37 @@ void draw_board_lines(int blocks, float block_width) {
     glEnd();
 }
 
+void draw_board_pieces(Board &board, int blocks, float block_width) {
+
+   // Go through each slot on the board
+   const Board::board_pointer board_array = board.get_board();
+
+   for (int i = 0; i < Board::board_size; ++i) {
+        for (int j = 0; j < Board::board_size; ++j) {
+
+            // Draw pieces in each slot
+            if (board_array[i][j].first) {
+                const std::shared_ptr<Piece> first_piece = board_array[i][j].first;
+                draw_piece(first_piece, blocks, block_width, j, i);
+            }
+            
+            if (board_array[i][j].second) {
+                const std::shared_ptr<Piece> first_piece = board_array[i][j].second;
+                draw_piece(first_piece, blocks, block_width, j, i);
+            }
+
+        }
+   }
+}
+
 void draw_pieces(int blocks, float block_width) {
-    std::vector<Piece*> pieces = {new Triangle(0), new Triangle(1),
-        new Square(0), new Square(1), new Rectangle(0), new Rectangle(1)};
+    std::vector<std::shared_ptr<Piece>> pieces;
+    pieces.push_back(std::make_shared<Triangle>(0));
+    pieces.push_back(std::make_shared<Triangle>(1));
+    pieces.push_back(std::make_shared<Square>(0));
+    pieces.push_back(std::make_shared<Square>(1));
+    pieces.push_back(std::make_shared<Rectangle>(0));
+    pieces.push_back(std::make_shared<Rectangle>(1));
 
     // Triangles
     draw_piece(pieces[0], blocks, block_width, 0, 0);
@@ -194,6 +225,9 @@ int main(void)
     // Graphic Settings
     float block_width = 0.2f;
 
+    // Game Objects
+    Board board;
+
     // Main rendering loop
     while (!glfwWindowShouldClose(window))
     {
@@ -209,7 +243,8 @@ int main(void)
         glMatrixMode(GL_MODELVIEW);
         
         // Main drawing
-        draw_pieces(blocks, block_width);
+        //draw_pieces(blocks, block_width);
+        draw_board_pieces(board, blocks, block_width);
         draw_board_lines(blocks, block_width);
         
 
