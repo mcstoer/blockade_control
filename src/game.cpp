@@ -245,6 +245,13 @@ int main(void)
         // Main drawing
         //draw_pieces(blocks, block_width);
         board.clear();
+        board.place_piece(std::make_shared<Triangle>(0), 4, 3);
+        board.place_piece(std::make_shared<Rectangle>(0), 4, 5);
+        std::shared_ptr<Piece> rect = std::make_shared<Rectangle>(1);
+        rect->rotate();
+        rect->rotate();
+        board.place_piece(rect, 4, 5);
+        board.place_piece(std::make_shared<Square>(1), 4, 4);
         draw_board_pieces(board, blocks, block_width);
         draw_board_lines(blocks, block_width);
         

@@ -13,7 +13,24 @@ const Board::board_pointer Board::get_board() const {
 }
 
 bool Board::place_piece(std::shared_ptr<Piece> piece, int x, int y) {
-    return false;
+
+    bool success = false;
+
+    // Check if there is any space to place a piece
+    if (board_[y][x].first && board_[y][x].second) {
+        success = false;
+    } else {
+        // Try to place in the first slot first
+        if (!board_[y][x].first) {
+            board_[y][x].first = piece;
+        } else {
+            board_[y][x].second = piece;
+        }
+
+        success = true;
+    }
+
+    return success;
 }
 
 void Board::clear() {
