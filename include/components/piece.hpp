@@ -11,6 +11,7 @@ class Piece {
         struct Point {
             int x;
             int y;
+            friend auto operator<=>(const Point&, const Point&) = default;
         };
 
         enum class piece_type {
