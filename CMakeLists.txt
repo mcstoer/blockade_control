@@ -27,6 +27,8 @@ add_executable(main
     src/components/rectangle.cpp
     include/components/board.hpp
     src/components/board.cpp
+    include/input/input_handler.hpp
+    src/input/input_handler.cpp
 )
 
 target_link_libraries(main OpenGL::GL glfw)

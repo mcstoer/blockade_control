@@ -12,6 +12,10 @@
 #include "components/rectangle.hpp"
 #include "components/board.hpp"
 
+#include "input/input_handler.hpp"
+
+// Global input handler so it can be accessed in callbacks
+InputHandler inputHandler;
 
 // Structure for storing a colour
 struct Color {
@@ -25,8 +29,11 @@ static void error_callback(int error, const char* description)
 
 static void key_callback(GLFWwindow* window, int key, int scancode, int action, int mods)
 {
-    if (key == GLFW_KEY_ESCAPE && action == GLFW_PRESS)
+    if (key == GLFW_KEY_ESCAPE && action == GLFW_PRESS) {
         glfwSetWindowShouldClose(window, GL_TRUE);
+    } else {
+        inputHandler.set_key_state(key, action == GLFW_PRESS);
+    }
 }
 
 // Draws a triangle on the interface given three points, number of blocks on the board,
@@ -206,6 +213,26 @@ void draw_pieces(int blocks, float block_width) {
 
 int main(void)
 {
+    // Game Settings
+    int blocks = 8;
+
+    // Graphic Settings
+    float block_width = 0.2f;
+
+    // Game Objects
+    Board board;
+    
+    std::vector<int> key_list = { // Keys we need to care about for the game
+        GLFW_KEY_A,
+        GLFW_KEY_W,
+        GLFW_KEY_S,
+        GLFW_KEY_D,
+        GLFW_KEY_R,
+        GLFW_KEY_ENTER
+    };
+
+    inputHandler = InputHandler(key_list);
+
     GLFWwindow* window;
     glfwSetErrorCallback(error_callback);
     if (!glfwInit())
@@ -218,15 +245,6 @@ int main(void)
     }
     glfwMakeContextCurrent(window);
     glfwSetKeyCallback(window, key_callback);
-
-    // Game Settings
-    int blocks = 8;
-
-    // Graphic Settings
-    float block_width = 0.2f;
-
-    // Game Objects
-    Board board;
 
     // Main rendering loop
     while (!glfwWindowShouldClose(window))
@@ -255,6 +273,13 @@ int main(void)
         draw_board_pieces(board, blocks, block_width);
         draw_board_lines(blocks, block_width);
         
+        if (inputHandler.get_key_state(GLFW_KEY_W)) {
+            std::cout << "W was pressed\n";
+        }
+        if (inputHandler.get_key_state(GLFW_KEY_ENTER)) {
+            std::cout << "Enter was pressed\n";
+        }
+
 
         glfwSwapBuffers(window);
         glfwPollEvents();
