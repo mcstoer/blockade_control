@@ -15,8 +15,8 @@ find_package(OpenGL REQUIRED)
 
 include_directories("./include")
 
-add_executable(game 
-    src/game.cpp
+add_executable(main
+    src/main.cpp
     include/components/piece.hpp
     src/components/piece.cpp
     include/components/triangle.hpp
@@ -29,7 +29,7 @@ add_executable(game
     src/components/board.cpp
 )
 
-target_link_libraries(game OpenGL::GL glfw)
+target_link_libraries(main OpenGL::GL glfw)
 
 if (GEN_TESTS)
     # Board tests
