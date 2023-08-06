@@ -10,7 +10,7 @@
 #include "components/triangle.hpp"
 #include "components/square.hpp"
 #include "components/rectangle.hpp"
-#include "board.hpp"
+#include "components/board.hpp"
 
 
 // Structure for storing a colour

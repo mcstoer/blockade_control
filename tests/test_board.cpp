@@ -3,7 +3,7 @@
 
 #include <memory>
 
-#include "board.hpp"
+#include "components/board.hpp"
 #include "components/piece.hpp"
 #include "components/rectangle.hpp"
 

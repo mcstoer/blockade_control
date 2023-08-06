@@ -25,8 +25,8 @@ add_executable(game
     src/components/square.cpp
     include/components/rectangle.hpp
     src/components/rectangle.cpp
-    include/board.hpp
-    src/board.cpp
+    include/components/board.hpp
+    src/components/board.cpp
 )
 
 target_link_libraries(game OpenGL::GL glfw)
@@ -43,8 +43,8 @@ if (GEN_TESTS)
         src/components/square.cpp
         include/components/rectangle.hpp
         src/components/rectangle.cpp
-        include/board.hpp
-        src/board.cpp
+        include/components/board.hpp
+        src/components/board.cpp
     )
         
 
