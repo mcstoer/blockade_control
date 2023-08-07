@@ -8,7 +8,9 @@ enum class Action {
     UP,
     DOWN,
     ROTATE,
-    PLACE
+    TOGGLE,
+    PLACE,
+    NONE
 };
 
 #endif 

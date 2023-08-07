@@ -29,6 +29,11 @@ add_executable(main
     src/components/board.cpp
     include/input/input_handler.hpp
     src/input/input_handler.cpp
+    include/input/actions.hpp
+    include/actors/actor.hpp
+    src/actors/actor.cpp
+    include/actors/player.hpp
+    src/actors/player.cpp
 )
 
 target_link_libraries(main OpenGL::GL glfw)
