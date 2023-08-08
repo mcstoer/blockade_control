@@ -17,6 +17,8 @@ include_directories("./include")
 
 add_executable(main
     src/main.cpp
+    include/game.hpp
+    src/game.cpp
     include/components/piece.hpp
     src/components/piece.cpp
     include/components/triangle.hpp
@@ -30,8 +32,6 @@ add_executable(main
     include/input/input_handler.hpp
     src/input/input_handler.cpp
     include/input/actions.hpp
-    include/actors/actor.hpp
-    src/actors/actor.cpp
     include/actors/player.hpp
     src/actors/player.cpp
 )
