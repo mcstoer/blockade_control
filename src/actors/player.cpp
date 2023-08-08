@@ -25,7 +25,8 @@ Action Player::do_action() {
         action = Action::ROTATE;
     } else if (input_handler_->get_key_state(GLFW_KEY_F)) {
         action = Action::TOGGLE;
-    } else if (input_handler_->get_key_state(GLFW_KEY_ENTER)) {
+    } else if (input_handler_->get_key_state(GLFW_KEY_ENTER)
+        || input_handler_->get_key_state(GLFW_KEY_SPACE)) {
         action = Action::PLACE;
     }
 

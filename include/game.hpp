@@ -13,21 +13,22 @@
 
 class Game {
 
-    // Stores the location that the player is interacting with
-    struct Cursor {
-        int x;
-        int y;
-        std::shared_ptr<Piece> piece;
-        int player_id;
-    };
+    public:
+        // Stores the location that the player is interacting with
+        struct Cursor {
+            int x;
+            int y;
+            std::shared_ptr<Piece> piece;
+            int player_id;
+        };
 
-    Game(int blocks, int num_players, InputHandler* input_handler);
+        Game(int blocks, int num_players, InputHandler* input_handler);
 
-    void progress_turn();
+        void progress_turn();
 
-    Board::board_pointer get_board() const;
+        Board get_board() const;
 
-    Cursor get_cursor() const;
+        Cursor get_cursor() const;
 
     private: 
         int blocks_;

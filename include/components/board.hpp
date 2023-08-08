@@ -1,3 +1,6 @@
+#ifndef board_hpp
+#define board_hpp
+
 #include <array>
 #include <memory>
 #include <utility>
@@ -37,3 +40,5 @@ class Board {
         void place_initial_squares();
 
 };
+
+#endif

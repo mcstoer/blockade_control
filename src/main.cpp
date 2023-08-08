@@ -11,6 +11,7 @@
 #include "components/square.hpp"
 #include "components/rectangle.hpp"
 #include "components/board.hpp"
+#include "game.hpp"
 
 #include "input/input_handler.hpp"
 
@@ -19,7 +20,7 @@ InputHandler inputHandler;
 
 // Structure for storing a colour
 struct Color {
-    GLfloat r, g, b;
+    GLfloat r, g, b, a;
 };
 
 static void error_callback(int error, const char* description)
@@ -32,7 +33,7 @@ static void key_callback(GLFWwindow* window, int key, int scancode, int action, 
     if (key == GLFW_KEY_ESCAPE && action == GLFW_PRESS) {
         glfwSetWindowShouldClose(window, GL_TRUE);
     } else {
-        inputHandler.set_key_state(key, action == GLFW_PRESS);
+        inputHandler.set_key_state(key, action == GLFW_PRESS || action == GLFW_REPEAT);
     }
 }
 
@@ -45,7 +46,7 @@ void draw_triangle_from_points(const std::vector<Piece::Point> points, const int
     const int center_offset = blocks / 2;
 
     glBegin(GL_TRIANGLES);
-    glColor3fv(&color.r);
+    glColor4fv(&color.r);
 
     for (auto pointIter = points.begin(); pointIter != points.end();
         ++pointIter) {
@@ -99,15 +100,9 @@ void draw_quad(const std::shared_ptr<Piece> quad, const int blocks,
 }
 
 void draw_piece(const std::shared_ptr<Piece> piece, const int blocks,
-    const float block_width, const int board_x, const int board_y) {
+    const float block_width, const int board_x, const int board_y,
+    const Color player_color) {
 
-    Color player_color;
-
-    if (piece->get_owner_id() == 0) {
-        player_color = Color{1.0f, 0.0f, 0.0f};
-    } else {
-        player_color = Color{0.0f, 0.0f, 1.0f};
-    }
 
     if (piece->get_piece_type() == Piece::piece_type::triangle) {
         draw_triangle(std::dynamic_pointer_cast<Triangle>(piece), blocks,
@@ -132,7 +127,8 @@ void draw_board_lines(int blocks, float block_width) {
     float bottom = -top;
 
     glBegin(GL_LINES);
-    glColor3f(1.0f, 1.0f, 1.0f);
+    // Line colour
+    glColor3f(0.0f, 0.0f, 0.0f);
 
     // Try drawing lines
     for (int i = -4; i <= 4; i++) {
@@ -148,6 +144,19 @@ void draw_board_lines(int blocks, float block_width) {
     glEnd();
 }
 
+// Given an id returns the associated colour for that player
+Color get_player_color(int id) {
+    Color player_color;
+
+    if (id == 0) {
+        player_color = Color{1.0f, 0.0f, 0.0f, 1.0f};
+    } else {
+        player_color = Color{0.0f, 0.0f, 1.0f, 1.0f};
+    }
+
+    return player_color;
+}
+
 void draw_board_pieces(Board &board, int blocks, float block_width) {
 
    // Go through each slot on the board
@@ -159,80 +168,56 @@ void draw_board_pieces(Board &board, int blocks, float block_width) {
             // Draw pieces in each slot
             if (board_array[i][j].first) {
                 const std::shared_ptr<Piece> first_piece = board_array[i][j].first;
-                draw_piece(first_piece, blocks, block_width, j, i);
+                Color color = get_player_color(first_piece->get_owner_id());
+                draw_piece(first_piece, blocks, block_width, j, i, color);
             }
             
             if (board_array[i][j].second) {
-                const std::shared_ptr<Piece> first_piece = board_array[i][j].second;
-                draw_piece(first_piece, blocks, block_width, j, i);
+                const std::shared_ptr<Piece> second_piece = board_array[i][j].second;
+                Color color = get_player_color(second_piece->get_owner_id());
+                draw_piece(second_piece, blocks, block_width, j, i, color);
             }
 
         }
    }
 }
 
-void draw_pieces(int blocks, float block_width) {
-    std::vector<std::shared_ptr<Piece>> pieces;
-    pieces.push_back(std::make_shared<Triangle>(0));
-    pieces.push_back(std::make_shared<Triangle>(1));
-    pieces.push_back(std::make_shared<Square>(0));
-    pieces.push_back(std::make_shared<Square>(1));
-    pieces.push_back(std::make_shared<Rectangle>(0));
-    pieces.push_back(std::make_shared<Rectangle>(1));
-
-    // Triangles
-    draw_piece(pieces[0], blocks, block_width, 0, 0);
-    pieces[0]->rotate();
-    pieces[1]->rotate();
-    draw_piece(pieces[1], blocks, block_width, 0, 7);
-    pieces[0]->rotate();
-    draw_piece(pieces[0], blocks, block_width, 7, 0);
-    pieces[0]->rotate();
-    draw_piece(pieces[0], blocks, block_width, 7, 7);
-    pieces[0]->rotate();
-    draw_piece(pieces[0], blocks, block_width, 4, 3);
-
-    // Squares
-    draw_piece(pieces[2], blocks, block_width, 4, 4);
-    pieces[2]->rotate();
-    draw_piece(pieces[2], blocks, block_width, 4, 5);
-    draw_piece(pieces[3], blocks, block_width, 4, 6);
-
-    // Rectangles
-    draw_piece(pieces[4], blocks, block_width, 0, 2);
-    pieces[4]->rotate();
-    pieces[5]->rotate();
-    draw_piece(pieces[5], blocks, block_width, 0, 3);
-    pieces[4]->rotate();
-    draw_piece(pieces[4], blocks, block_width, 0, 4);
-    pieces[4]->rotate();
-    draw_piece(pieces[4], blocks, block_width, 0, 5);
-    pieces[4]->rotate();
-    draw_piece(pieces[4], blocks, block_width, 0, 6);
+void draw_cursor_piece(Game::Cursor& cursor, int blocks, float block_width) {
+    Color color = get_player_color(cursor.player_id);
+    // Lighten colours and add transparency
+    color.r += 0.2f;
+    color.g += 0.2f;
+    color.b += 0.2f;
+    color.a = 0.8f;
+    draw_piece(cursor.piece, blocks, block_width, cursor.x, cursor.y, color);
 }
 
 int main(void)
 {
-    // Game Settings
-    int blocks = 8;
-
-    // Graphic Settings
-    float block_width = 0.2f;
-
-    // Game Objects
-    Board board;
-    
+    // Setup key handler
     std::vector<int> key_list = { // Keys we need to care about for the game
         GLFW_KEY_A,
         GLFW_KEY_W,
         GLFW_KEY_S,
         GLFW_KEY_D,
         GLFW_KEY_R,
-        GLFW_KEY_ENTER
+        GLFW_KEY_ENTER,
+        GLFW_KEY_SPACE
     };
 
     inputHandler = InputHandler(key_list);
 
+    // Game Settings
+    int blocks = 8;
+    int num_players = 2;
+
+    // Graphic Settings
+    float block_width = 0.2f;
+
+    // Game Objects
+    Game game(blocks, num_players, &inputHandler);
+    
+    // Create Window
     GLFWwindow* window;
     glfwSetErrorCallback(error_callback);
     if (!glfwInit())
@@ -246,6 +231,11 @@ int main(void)
     glfwMakeContextCurrent(window);
     glfwSetKeyCallback(window, key_callback);
 
+    // Setup alpha blending
+    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+    glEnable(GL_BLEND);
+    glClearColor(0.8f, 0.8f, 0.8f, 0.8f);
+
     // Main rendering loop
     while (!glfwWindowShouldClose(window))
     {
@@ -254,32 +244,27 @@ int main(void)
         glfwGetFramebufferSize(window, &width, &height);
         ratio = width / (float) height;
         glViewport(0, 0, width, height);
+
+        // Clear colours
         glClear(GL_COLOR_BUFFER_BIT);
         glMatrixMode(GL_PROJECTION);
         glLoadIdentity();
         glOrtho(-ratio, ratio, -1.f, 1.f, 1.f, -1.f);
         glMatrixMode(GL_MODELVIEW);
-        
-        // Main drawing
-        //draw_pieces(blocks, block_width);
-        board.clear();
-        board.place_piece(std::make_shared<Triangle>(0), 4, 3);
-        board.place_piece(std::make_shared<Rectangle>(0), 4, 5);
-        std::shared_ptr<Piece> rect = std::make_shared<Rectangle>(1);
-        rect->rotate();
-        rect->rotate();
-        board.place_piece(rect, 4, 5);
-        board.place_piece(std::make_shared<Square>(1), 4, 4);
-        draw_board_pieces(board, blocks, block_width);
-        draw_board_lines(blocks, block_width);
-        
-        if (inputHandler.get_key_state(GLFW_KEY_W)) {
-            std::cout << "W was pressed\n";
-        }
-        if (inputHandler.get_key_state(GLFW_KEY_ENTER)) {
-            std::cout << "Enter was pressed\n";
-        }
+       
+        // Run game turns
+        game.progress_turn();
 
+        // Board and Cursor drawing
+        Board board = game.get_board();
+        Game::Cursor cursor = game.get_cursor();
+
+        // Draw pieces of board and cursor
+        draw_board_pieces(board, blocks, block_width);
+        draw_cursor_piece(cursor, blocks, block_width);
+
+        // Draw lines of board and cursor
+        draw_board_lines(blocks, block_width);
 
         glfwSwapBuffers(window);
         glfwPollEvents();

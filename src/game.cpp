@@ -1,4 +1,6 @@
 #include <cassert>
+#include <thread>
+#include <chrono>
 
 #include "game.hpp"
 #include "actors/player.hpp"
@@ -57,14 +59,23 @@ void Game::progress_turn() {
 
         case Action::TOGGLE: 
             toggle_cursor_piece();
+            break;
 
         case Action::PLACE: 
             board_.place_piece(current_cursor_.piece, current_cursor_.x, current_cursor_.y);
             current_actor_turn_ = get_next_actor();
+            reset_cursor(current_actor_turn_);
+            
+            // Add additional sleep to prevent double placing
+            std::this_thread::sleep_for(std::chrono::milliseconds(100));
+            break;
 
         default: 
             assert(false);
     }
+
+    // Sleep to give the player time to react to the piece movements
+    std::this_thread::sleep_for(std::chrono::milliseconds(150));
 }
 
 void Game::reset_cursor(int id) {
@@ -100,8 +111,8 @@ int Game::get_next_actor() {
     return (current_actor_turn_ + 1) % num_actors_;
 }
 
-Board::board_pointer Game::get_board() const {
-    return board_.get_board();
+Board Game::get_board() const {
+    return board_;
 }
 
 Game::Cursor Game::get_cursor() const {
