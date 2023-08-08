@@ -3,15 +3,14 @@
 
 #include <memory>
 
-#include "actors/actor.hpp"
 #include "input/input_handler.hpp"
 #include "input/actions.hpp"
 
-class Player : Actor {
+class Player {
 
     public: 
 
-        Player(int id);
+        Player(int id, InputHandler* input_handler);
 
         ~Player();
 
@@ -21,6 +20,7 @@ class Player : Actor {
 
 
     private: 
+        int id_;
         InputHandler* input_handler_;
 };
 

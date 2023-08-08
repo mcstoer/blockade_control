@@ -3,10 +3,11 @@
 #include "actors/player.hpp"
 #include "input/input_handler.hpp"
 
+Player::Player(int id, InputHandler* input_handler) {
+    input_handler_ = input_handler;
+};
 
-Player::Player(int id) : Actor(id) {};
-
-Player::~Player() = default;
+Player::~Player() {};
 
 Action Player::do_action() {
    
