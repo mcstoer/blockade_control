@@ -34,23 +34,31 @@ void Game::progress_turn() {
 
     // Apply action's effect
     switch (player_action) {
-        case Action::NONE: 
-            break;
+        case Action::NONE:
+            return; // Try to avoid sleeping to act faster after sleep.
 
         case Action::UP:
-            --current_cursor_.y;
+            if (current_cursor_.y > 0) {
+                --current_cursor_.y;
+            }
             break;
 
         case Action::DOWN: 
-            ++current_cursor_.y;
+            if (current_cursor_.y < Board::board_size - 1) {
+                ++current_cursor_.y;
+            }
             break;
 
         case Action::LEFT:
-            --current_cursor_.x;
+            if (current_cursor_.x > 0) {
+                --current_cursor_.x;
+            }
             break;
 
         case Action::RIGHT: 
-            ++current_cursor_.x;
+            if (current_cursor_.x < Board::board_size - 1) {
+                ++current_cursor_.x;
+            }
             break;
 
         case Action::ROTATE: 
