@@ -15,6 +15,12 @@ class Piece {
             int x;
             int y;
             friend auto operator<=>(const Point&, const Point&) = default;
+
+            Point& operator+=(const Point& rhs) {
+                x += rhs.x;
+                y += rhs.y;
+                return *this; 
+            }
         };
 
         enum class piece_type {

@@ -118,6 +118,12 @@ bool Game::check_if_valid_placement(std::shared_ptr<Piece> piece, int x, int y) 
         return false;
     }
 
+    bool is_connected = check_if_connected_to_existing_pieces(piece, x, y);
+
+    if (!is_connected) {
+        return false;
+    }
+
     return true;
 }
 
@@ -161,6 +167,89 @@ bool Game::check_if_space_in_board_slot(std::shared_ptr<Piece> piece, int x, int
         }
     }
     
+    return false;
+}
+
+void shift_points_inplace(std::vector<Piece::Point>& points, int x, int y) {
+    Piece::Point x_y_shift = {x * 2, y * -2};
+
+    for (Piece::Point& p : points) {
+        p += x_y_shift;
+    }
+}
+
+bool Game::check_if_connected_to_existing_pieces(std::shared_ptr<Piece> piece, int x, int y) const {
+    
+    const Board::board_pointer board = board_.get_board();
+    std::vector<Piece::Point> piece_points = piece->get_points();
+    const int piece_owner_id = piece->get_owner_id();
+
+    // Shift piece's coordinates over based on x and y
+    shift_points_inplace(piece_points, x, y);
+
+    // Get area to check in
+    int x_start = x - 1;
+    int y_start = y - 1;
+    int x_end = x + 2; // Add two to be one past the slot to check
+    int y_end = y + 2;
+
+    // Enforce bounds of board
+    if (x_start < 0) {
+        x_start = 0;
+    }
+
+    if (x_end > Board::board_size) {
+        x_end = Board::board_size;
+    }
+    
+    if (y_start < 0) {
+        y_start = 0;
+    }
+
+    if (y_end > Board::board_size) {
+        y_end = Board::board_size;
+    }
+
+    // Loop through all the pieces in the given area
+    for (int i = x_start; i < x_end; ++i) {
+        for (int j = y_start; j < y_end; ++j) {
+            Board::board_slot slot = board[j][i];
+       
+            if (slot.first && slot.first->get_owner_id() == piece_owner_id) {
+                // Need to offset the pieces based on their location
+                std::vector<Piece::Point> points = slot.first->get_points();
+                shift_points_inplace(points, i, j);
+                
+                if (compare_points(points, piece_points)) {
+                    return true;
+                }
+            }
+            
+            if (slot.second && slot.second->get_owner_id() == piece_owner_id) {
+                std::vector<Piece::Point> points = slot.second->get_points();
+                shift_points_inplace(points, i, j);
+                
+                if (compare_points(points, piece_points)) {
+                    return true;
+                }
+            }
+        }
+    }
+
+
+    return false;
+}
+
+// Checks if any of the points in one vector match the other
+bool Game::compare_points(std::vector<Piece::Point> points1, std::vector<Piece::Point> points2) const {
+    for (auto& p1 : points1) {
+        for (auto& p2 : points2) {
+            if (p1 == p2) {
+                return true;
+            }
+        }
+    }
+
     return false;
 }
 

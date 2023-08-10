@@ -53,6 +53,10 @@ class Game {
         bool check_if_space_in_board_slot(std::shared_ptr<Piece> piece, int x, int y) const;
 
         bool check_if_sufficient_half_squares_left(std::shared_ptr<Piece> piece) const;
+
+        bool check_if_connected_to_existing_pieces(std::shared_ptr<Piece> piece, int x, int y) const;
+
+        bool compare_points(std::vector<Piece::Point> points1, std::vector<Piece::Point> points2) const;
 };
 
 #endif 
