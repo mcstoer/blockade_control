@@ -72,24 +72,29 @@ void Game::progress_turn() {
             break;
 
         case Action::PLACE:
-            board_.place_piece(current_cursor_.piece, current_cursor_.x, current_cursor_.y);
 
-            if (current_cursor_.piece->get_piece_type() == Piece::piece_type::square) {
-                half_squares_placed_ = 2;
-            } else {
-                ++half_squares_placed_;
-            }
+            if (check_if_valid_placement(current_cursor_.piece, current_cursor_.x, current_cursor_.y)) {
+
+                board_.place_piece(current_cursor_.piece, current_cursor_.x, current_cursor_.y);
+
+                // Update the number of half squares placed by the actor
+                if (current_cursor_.piece->get_piece_type() == Piece::piece_type::square) {
+                    half_squares_placed_ = 2;
+                } else {
+                    ++half_squares_placed_;
+                }
+                    
+                if (half_squares_placed_ == 2) {
+                    half_squares_placed_ = 0;
+                    current_actor_turn_ = get_next_actor();
+                }
                 
-            if (half_squares_placed_ == 2) {
-                half_squares_placed_ = 0;
-                current_actor_turn_ = get_next_actor();
+                // Reset after any potential changes to the actor id
+                reset_cursor(current_actor_turn_);
+                
+                // Add additional sleep to prevent double placing
+                std::this_thread::sleep_for(std::chrono::milliseconds(100));
             }
-            
-            // Reset after any potential changes to the actor id
-            reset_cursor(current_actor_turn_);
-            
-            // Add additional sleep to prevent double placing
-            std::this_thread::sleep_for(std::chrono::milliseconds(100));
             break;
 
         default: 
@@ -98,6 +103,34 @@ void Game::progress_turn() {
 
     // Sleep to give the player time to react to the piece movements
     std::this_thread::sleep_for(std::chrono::milliseconds(150));
+}
+
+bool Game::check_if_valid_placement(std::shared_ptr<Piece> piece, int x, int y) {
+    bool is_enough_half_squares_left = check_if_sufficient_half_squares_left(piece);
+
+    if (!is_enough_half_squares_left) {
+        return false;
+    }
+
+    bool is_space_in_slot = check_if_space_in_board_slot(piece, x, y);
+
+    if (!is_space_in_slot) {
+        return false;
+    }
+
+    return true;
+}
+
+bool Game::check_if_sufficient_half_squares_left(std::shared_ptr<Piece> piece) {
+    if (half_squares_placed_ == 1 && piece->get_piece_type() == Piece::piece_type::square) {
+        return false;
+    }
+    
+    return true;
+}
+
+bool Game::check_if_space_in_board_slot(std::shared_ptr<Piece> piece, int x, int y) {
+    return true;    
 }
 
 void Game::reset_cursor(int id) {
