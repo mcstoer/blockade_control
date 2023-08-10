@@ -31,7 +31,7 @@ class Game {
         Cursor get_cursor() const;
         
         // Checks if placing a given piece is valid for the current game state
-        bool check_if_valid_placement(std::shared_ptr<Piece> piece, int x, int y);
+        bool check_if_valid_placement(std::shared_ptr<Piece> piece, int x, int y) const;
 
     private: 
         int blocks_;
@@ -50,9 +50,9 @@ class Game {
         // Gets the id of the actor who's turn is next
         int get_next_actor();
 
-        bool check_if_space_in_board_slot(std::shared_ptr<Piece> piece, int x, int y);
+        bool check_if_space_in_board_slot(std::shared_ptr<Piece> piece, int x, int y) const;
 
-        bool check_if_sufficient_half_squares_left(std::shared_ptr<Piece> piece);
+        bool check_if_sufficient_half_squares_left(std::shared_ptr<Piece> piece) const;
 };
 
 #endif 

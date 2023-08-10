@@ -59,3 +59,7 @@ void Rectangle::rotate() {
             assert(false);
     }
 }
+
+std::shared_ptr<Piece> Rectangle::clone() const {
+    return std::make_shared<Rectangle>(*this);
+}

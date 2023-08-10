@@ -54,3 +54,7 @@ void Triangle::rotate() {
             assert(false);
     }
 }
+
+std::shared_ptr<Piece> Triangle::clone() const {
+    return std::make_shared<Triangle>(*this);
+}

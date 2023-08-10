@@ -10,7 +10,9 @@ class Square: public Piece {
 
         ~Square();
     
-        void rotate();
+       void rotate();
+
+       std::shared_ptr<Piece> clone() const;
 
 };
 

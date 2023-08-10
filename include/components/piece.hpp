@@ -2,6 +2,9 @@
 #define piece_hpp
 
 #include <vector>
+#include <memory>
+#include <iostream>
+
 
 class Piece {
 
@@ -32,11 +35,37 @@ class Piece {
 
         virtual void rotate() = 0;
 
+        virtual std::shared_ptr<Piece> clone() const = 0;
+
     protected: 
         std::vector<Point> points_;
         int rotation_; // Stores rotation in degrees
         piece_type piece_type_;
         int owner_id_; 
 };
+
+inline bool operator==(const Piece& lhs, const Piece& rhs) {
+  
+    // Check for matching type
+    if (lhs.get_piece_type() != rhs.get_piece_type()) {
+        return false;
+    }
+
+    // Check for matching points
+    std::vector<Piece::Point> lhs_points = lhs.get_points();
+    std::vector<Piece::Point> rhs_points = rhs.get_points();
+
+    if (lhs_points.size() != rhs_points.size()) {
+        return false;
+    }
+
+    for (int i = 0; i < lhs_points.size(); ++i) {
+        if (lhs_points[i] != rhs_points[i]) {
+            return false;
+        }
+    }
+
+    return true;
+}
 
 #endif

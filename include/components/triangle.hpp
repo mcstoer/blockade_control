@@ -12,6 +12,7 @@ class Triangle: public Piece {
     
         void rotate();
 
+        std::shared_ptr<Piece> clone() const;
 };
 
 #endif

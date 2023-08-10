@@ -105,7 +105,7 @@ void Game::progress_turn() {
     std::this_thread::sleep_for(std::chrono::milliseconds(150));
 }
 
-bool Game::check_if_valid_placement(std::shared_ptr<Piece> piece, int x, int y) {
+bool Game::check_if_valid_placement(std::shared_ptr<Piece> piece, int x, int y) const {
     bool is_enough_half_squares_left = check_if_sufficient_half_squares_left(piece);
 
     if (!is_enough_half_squares_left) {
@@ -121,7 +121,7 @@ bool Game::check_if_valid_placement(std::shared_ptr<Piece> piece, int x, int y) 
     return true;
 }
 
-bool Game::check_if_sufficient_half_squares_left(std::shared_ptr<Piece> piece) {
+bool Game::check_if_sufficient_half_squares_left(std::shared_ptr<Piece> piece) const {
     if (half_squares_placed_ == 1 && piece->get_piece_type() == Piece::piece_type::square) {
         return false;
     }
@@ -129,8 +129,39 @@ bool Game::check_if_sufficient_half_squares_left(std::shared_ptr<Piece> piece) {
     return true;
 }
 
-bool Game::check_if_space_in_board_slot(std::shared_ptr<Piece> piece, int x, int y) {
-    return true;    
+bool Game::check_if_space_in_board_slot(std::shared_ptr<Piece> piece, int x, int y) const {
+    const Board::board_pointer board = board_.get_board();
+    Board::board_slot slot = board[y][x]; // Switch these since board is 2d array
+
+    // Space in both slots
+    if (!slot.first && !slot.second) {
+        return true;
+
+    // Space in the second slot
+    } else if (slot.first && !slot.second) {
+        
+        // A square can be the only thing in a slot
+        if (piece->get_piece_type() != Piece::piece_type::square 
+            || slot.first->get_piece_type() != Piece::piece_type::square) {
+            
+            // Both pieces in a slot need to match type
+            if (slot.first->get_piece_type() == piece->get_piece_type()) {
+                
+                // The first piece and second piece need to be different by a rotation of 180 degrees
+                std::shared_ptr<Piece> piece_copy = piece->clone();
+
+                // Rotate 180
+                piece_copy->rotate();
+                piece_copy->rotate();
+
+                if (*slot.first.get() == *piece_copy.get()) {
+                    return true;
+                }
+            }
+        }
+    }
+    
+    return false;
 }
 
 void Game::reset_cursor(int id) {

@@ -40,3 +40,8 @@ void Square::rotate() {
             assert(false);
     }
 }
+
+
+std::shared_ptr<Piece> Square::clone() const {
+    return std::make_shared<Square>(*this);
+}
