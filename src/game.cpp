@@ -16,6 +16,7 @@ Game::Game(int blocks, int players, InputHandler* input_handler) {
 
     // Set starting turn
     current_actor_turn_ = 0;
+    half_squares_placed_ = 0;
 
     reset_cursor(current_actor_turn_);
 
@@ -71,8 +72,19 @@ void Game::progress_turn() {
 
         case Action::PLACE: 
             board_.place_piece(current_cursor_.piece, current_cursor_.x, current_cursor_.y);
-            current_actor_turn_ = get_next_actor();
+
+            if (current_cursor_.piece->get_piece_type() == Piece::piece_type::square) {
+                half_squares_placed_ = 2;
+            } else {
+                ++half_squares_placed_;
+            }
+                
             reset_cursor(current_actor_turn_);
+
+            if (half_squares_placed_ == 2) {
+                half_squares_placed_ = 0;
+                current_actor_turn_ = get_next_actor();
+            }
             
             // Add additional sleep to prevent double placing
             std::this_thread::sleep_for(std::chrono::milliseconds(100));

@@ -34,6 +34,7 @@ class Game {
         int blocks_;
         int num_actors_;
         int current_actor_turn_;
+        int half_squares_placed_;
         std::vector<Player> players_;
         Board board_;
         InputHandler* input_handler_;
