@@ -1,6 +1,7 @@
 #include <cassert>
 #include <thread>
 #include <chrono>
+#include <iostream>
 
 #include "game.hpp"
 #include "actors/player.hpp"
@@ -70,7 +71,7 @@ void Game::progress_turn() {
             toggle_cursor_piece();
             break;
 
-        case Action::PLACE: 
+        case Action::PLACE:
             board_.place_piece(current_cursor_.piece, current_cursor_.x, current_cursor_.y);
 
             if (current_cursor_.piece->get_piece_type() == Piece::piece_type::square) {
@@ -79,12 +80,13 @@ void Game::progress_turn() {
                 ++half_squares_placed_;
             }
                 
-            reset_cursor(current_actor_turn_);
-
             if (half_squares_placed_ == 2) {
                 half_squares_placed_ = 0;
                 current_actor_turn_ = get_next_actor();
             }
+            
+            // Reset after any potential changes to the actor id
+            reset_cursor(current_actor_turn_);
             
             // Add additional sleep to prevent double placing
             std::this_thread::sleep_for(std::chrono::milliseconds(100));
