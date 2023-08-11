@@ -406,7 +406,6 @@ void Game::simulate_filling_placements(Board& board, int id) {
    
     // Create queue of where we can possibly place
     std::set<board_pos> potential_positions;
-    std::set<board_pos> considered_positions;
 
     // Get possible placement positions using current board locations
     for (int i = 0; i < Board::board_size; ++i) {
@@ -443,11 +442,7 @@ void Game::simulate_filling_placements(Board& board, int id) {
                 for (int h = i_start; h < i_end; ++h) {
                     for (int w = j_start; w < j_end; ++w) {
                         board_pos new_pos = {h, w};
-                        if (auto search = considered_positions.find(new_pos);
-                            search == considered_positions.end()) {
-                            potential_positions.insert(new_pos);
-                            considered_positions.insert(new_pos);
-                        }
+                        potential_positions.insert(new_pos);
                     }
                 }
             }
@@ -493,11 +488,7 @@ void Game::simulate_filling_placements(Board& board, int id) {
             for (int h = i_start; h < i_end; ++h) {
                 for (int w = j_start; w < j_end; ++w) {
                     board_pos new_pos = {h, w};
-                    if (auto search = considered_positions.find(new_pos);
-                        search == considered_positions.end()) {
-                        potential_positions.insert(new_pos);
-                        considered_positions.insert(new_pos);
-                    }
+                    potential_positions.insert(new_pos);
                 }
             }
         }
