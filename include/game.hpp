@@ -37,7 +37,13 @@ class Game {
         // Check if the game is currently in a finished state
         bool check_if_game_is_finished(Board& final_board);
 
-    private: 
+    private:
+        struct board_pos {
+            int i;
+            int j;
+            friend auto operator<=>(const board_pos&, const board_pos&) = default;
+        };
+
         int blocks_;
         int num_actors_;
         int current_actor_turn_;
@@ -65,6 +71,10 @@ class Game {
 
         // Given a board, simulates placing as many pieces as possible for a given actor
         void simulate_filling_placements(Board& board, int id);
+        
+        bool fill_slot(Board& board, const Board::board_slot& slot, int id, int i, int j);
+
+
 };
 
 #endif 

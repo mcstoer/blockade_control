@@ -1,4 +1,5 @@
 #include <cassert>
+#include <set>
 #include <thread>
 #include <chrono>
 #include <iostream>
@@ -288,6 +289,8 @@ bool Game::check_if_game_is_finished(Board& final_board) {
                
                     // Full slot
                     // Check for a single square that matches
+                    std::cout << "here1" << "\n";
+
                     if (final_slot.first && 
                         final_slot.first->get_piece_type() == Piece::piece_type::square) {
                         
@@ -295,10 +298,13 @@ bool Game::check_if_game_is_finished(Board& final_board) {
                         if (!first_slot_same) {
                             return false;
                         }
+
+                        continue;
                     }
+                    std::cout << "here2" << "\n";
                     
                     // Empty slots
-                    if (!final_slot.first || !final_slot.second) {
+                    if (!final_slot.first) {
                         // We can use slot.first here since we must have something to place
                         final_board.place_piece(slot.first, j, i);
 
@@ -306,7 +312,10 @@ bool Game::check_if_game_is_finished(Board& final_board) {
                         if (slot.second) {
                             final_board.place_piece(slot.second, j, i);
                         }
+
+                        continue;
                     }
+                    std::cout << "here3" << "\n";
 
                     // Full Slot
                     // Must have the same pieces in slot
@@ -329,10 +338,18 @@ bool Game::check_if_game_is_finished(Board& final_board) {
 
                     // Partially filled slot
                     // Check first slot match since we know there must be something there
+                    std::cout << "here?" << "\n";
+                    if (!final_slot.first) {
+                        std::cout << "???" << "\n";
+                    }
+
                     bool first_slot_same = *slot.first.get() == *final_slot.first.get();
                     if (first_slot_same) {
                         // If the first slot is the same, then the second piece must fit
-                        final_board.place_piece(slot.second, j, i);
+                        std::cout << "W" << "\n";
+                        if (slot.second) {
+                            final_board.place_piece(slot.second, j, i);
+                        }
                     } else {
                         return false;
                     }
@@ -344,68 +361,150 @@ bool Game::check_if_game_is_finished(Board& final_board) {
     return true;
 }
 
+bool Game::fill_slot(Board& board, const Board::board_slot& slot, int id, int i, int j) {
+
+    // Check if there is space in the slot
+    if (!slot.first || !slot.second) {
+
+        // Try to place each type of piece in the slot
+        // Start with a square since that fills an empty slot the fastest
+        // And also ensures we only have to place one piece if there is space
+        std::shared_ptr<Piece> piece = std::make_shared<Square>(id);
+
+        // Square
+        if (check_if_valid_placement(piece, i, j, 0)) {
+            board.place_piece(piece, i, j);
+            return true;
+        }
+
+        // Triangles
+        piece = std::make_shared<Triangle>(id);
+        for (int rotations = 0; rotations < 4; ++rotations) {
+            if (check_if_valid_placement(piece, j, i, 0)) {
+                board.place_piece(piece, j, i);
+                return true;
+            }
+            piece->rotate();
+        }
+
+        // Rectangles
+        piece = std::make_shared<Rectangle>(id);
+        for (int rotations = 0; rotations < 4; ++rotations) {
+            if (check_if_valid_placement(piece, j, i, 0)) {
+                board.place_piece(piece, j, i);
+                return true;
+            }
+            piece->rotate();
+        }
+    }
+
+    return false;
+}
+
 void Game::simulate_filling_placements(Board& board, int id) {
-    
-    bool placements_left = true;
+   
+    // Create queue of where we can possibly place
+    std::set<board_pos> potential_positions;
+    std::set<board_pos> considered_positions;
 
-    std::cout << "Filling slots.\n";
+    // Get possible placement positions using current board locations
+    for (int i = 0; i < Board::board_size; ++i) {
+        for (int j = 0; j < Board::board_size; ++j) {
+            Board::board_slot slot = board_.get_board()[i][j];
+            
+            // Get area to check within
+            int i_start = i - 1;
+            int j_start = j - 1;
+            int i_end = i + 2; // Add two to be one past the slot to check
+            int j_end = j + 2;
 
-    // Look until no more can be placed
-    while (placements_left) {
-        placements_left = false;
+            // Enforce bounds of board
+            if (i_start < 0) {
+                i_start = 0;
+            }
 
-        std::cout << "Placement looping.\n";
-        for (int i = 0; i < Board::board_size; ++i) {
-            for (int j = 0; j < Board::board_size; ++j) {
-                
-                Board::board_slot slot = board.get_board()[i][j];
+            if (i_end > Board::board_size) {
+                i_end = Board::board_size;
+            }
+            
+            if (j_start < 0) {
+                j_start = 0;
+            }
 
-                // Check if there is space in the slot
-                if (!slot.first || !slot.second) {
-
-                    // Try to place each type of piece in the slot
-                    // Start with a square since that fills an empty slot the fastest
-                    std::shared_ptr<Piece> piece = std::make_shared<Square>(id);
-
-                    // Square
-                    if (check_if_valid_placement(piece, i, j, 0)) {
-                        board.place_piece(piece, i, j);
-                        placements_left = true;
-                        continue;
-                    }
-
-                    // Triangles
-                    piece = std::make_shared<Triangle>(id);
-                    for (int rotations = 0; rotations < 4; ++rotations) {
-                        if (check_if_valid_placement(piece, j, i, 0)) {
-                            board.place_piece(piece, j, i);
-                            placements_left = true;
-                            break;
+            if (j_end > Board::board_size) {
+                j_end = Board::board_size;
+            }
+            
+            bool first = slot.first && slot.first->get_owner_id() == id;
+            bool second = slot.second && slot.second->get_owner_id() == id;
+            // Add potential positions around a piece
+            if (first || second) {
+                for (int h = i_start; h < i_end; ++h) {
+                    for (int w = j_start; w < j_end; ++w) {
+                        board_pos new_pos = {h, w};
+                        std::cout << "Adding pos: " << h << " " << w << "\n";
+                        if (auto search = considered_positions.find(new_pos);
+                            search == considered_positions.end()) {
+                            potential_positions.insert(new_pos);
+                            considered_positions.insert(new_pos);
                         }
-                        
-                        piece->rotate();
-                    }
-
-                    // We added a triangle so there should be no space left
-                    if (placements_left) {
-                        continue;
-                    }
-                    
-                    // Rectangles
-                    piece = std::make_shared<Rectangle>(id);
-                    for (int rotations = 0; rotations < 4; ++rotations) {
-                        if (check_if_valid_placement(piece, j, i, 0)) {
-                            board.place_piece(piece, j, i);
-                            placements_left = true;
-                            break;
-                        }
-                        piece->rotate();
                     }
                 }
-
             }
         }
     }
+
+    // Go through all positions
+    while (!potential_positions.empty()) {
+        board_pos pos = potential_positions.extract(potential_positions.begin()).value();
+
+        std::cout << "Checking position: " << pos.i << " " << pos.j << "\n";
+
+        bool filled_slot = fill_slot(board, board_.get_board()[pos.i][pos.j], id, pos.i, pos.j);
+
+        // Add all nearby positions
+        if (filled_slot) {
+
+            const int i = pos.i;
+            const int j = pos.j;
+
+            // Get area to check within
+            int i_start = i - 1;
+            int j_start = j - 1;
+            int i_end = i + 2; // Add two to be one past the slot to check
+            int j_end = j + 2;
+
+            // Enforce bounds of board
+            if (i_start < 0) {
+                i_start = 0;
+            }
+
+            if (i_end > Board::board_size) {
+                i_end = Board::board_size;
+            }
+            
+            if (j_start < 0) {
+                j_start = 0;
+            }
+
+            if (j_end > Board::board_size) {
+                j_end = Board::board_size;
+            }
+            
+            // Add potential positions around a piece
+            for (int h = i_start; h < i_end; ++h) {
+                for (int w = j_start; w < j_end; ++w) {
+                    board_pos new_pos = {h, w};
+                    if (auto search = considered_positions.find(new_pos);
+                        search == considered_positions.end()) {
+                        potential_positions.insert(new_pos);
+                        considered_positions.insert(new_pos);
+                    }
+                }
+            }
+        }
+    }
+
 }
 
 void Game::reset_cursor(int id) {
