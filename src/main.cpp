@@ -255,11 +255,10 @@ int main(void)
         // Run game turns
         game.progress_turn();
        
+        if (false) {
         // Debug placing all pieces
         Board temp;
         game.simulate_filling_placements(temp, 0);
-
-        if (true) {
             std::cout << "drawing\n";
             draw_board_pieces(temp, blocks, block_width);
         } else {
@@ -268,6 +267,7 @@ int main(void)
         Board final_board;
         if (game.check_if_game_is_finished(final_board)) {
             std::cout << "Game is complete!\n";
+            break;
         }
 
         // Board and Cursor drawing

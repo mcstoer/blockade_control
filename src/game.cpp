@@ -110,7 +110,8 @@ void Game::progress_turn() {
 bool Game::check_if_valid_placement(std::shared_ptr<Piece> piece, int x, int y,
     int half_squares_placed, const Board& target_board)
     const {
-    bool is_enough_half_squares_left = check_if_sufficient_half_squares_left(piece, half_squares_placed);
+    bool is_enough_half_squares_left = check_if_sufficient_half_squares_left(piece,
+        half_squares_placed);
 
     if (!is_enough_half_squares_left) {
         return false;
@@ -119,12 +120,14 @@ bool Game::check_if_valid_placement(std::shared_ptr<Piece> piece, int x, int y,
     bool is_space_in_slot = check_if_space_in_board_slot(piece, x, y, target_board);
 
     if (!is_space_in_slot) {
+        std::cout << "not enough space\n";
         return false;
     }
 
     bool is_connected = check_if_connected_to_existing_pieces(piece, x, y, target_board);
 
     if (!is_connected) {
+        std::cout << "not connected\n";
         return false;
     }
 
@@ -150,7 +153,7 @@ bool Game::check_if_space_in_board_slot(std::shared_ptr<Piece> piece, int x, int
 
     // Space in the second slot
     } else if (slot.first && !slot.second) {
-        
+        std::cout << "here\n\n\n"; 
         // A square can be the only thing in a slot
         if (piece->get_piece_type() != Piece::piece_type::square 
             || slot.first->get_piece_type() != Piece::piece_type::square) {
@@ -297,7 +300,8 @@ bool Game::check_if_game_is_finished(Board& final_board) {
                     if (final_slot.first && 
                         final_slot.first->get_piece_type() == Piece::piece_type::square) {
                         
-                        bool first_slot_same = *slot.first.get() == *final_slot.first.get();
+                        bool first_slot_same = *slot.first.get() == *final_slot.first.get()
+                            && slot.first->get_owner_id() == final_slot.first->get_owner_id();
                         if (!first_slot_same) {
                             return false;
                         }
@@ -324,13 +328,16 @@ bool Game::check_if_game_is_finished(Board& final_board) {
                     // Must have the same pieces in slot
                     // otherwise it's an overlap
                     if (final_slot.first && final_slot.second) {
-                        bool first_slot_same = *slot.first.get() == *final_slot.first.get();
+                        bool first_slot_same = *slot.first.get() == *final_slot.first.get()
+                            && slot.first->get_owner_id() == final_slot.first->get_owner_id();
                         if (!first_slot_same) {
                             return false;
                         } else {
                             if (slot.second) {
                                 bool second_slot_same = *slot.second.get() ==
-                                    *final_slot.second.get();
+                                    *final_slot.second.get()
+                                    && slot.second->get_owner_id() ==
+                                    final_slot.second->get_owner_id();
                                 if (!second_slot_same) {
                                     return false;
                                 }
@@ -346,7 +353,8 @@ bool Game::check_if_game_is_finished(Board& final_board) {
                         std::cout << "???" << "\n";
                     }
 
-                    bool first_slot_same = *slot.first.get() == *final_slot.first.get();
+                    bool first_slot_same = *slot.first.get() == *final_slot.first.get()
+                            && slot.first->get_owner_id() == final_slot.first->get_owner_id();
                     if (first_slot_same) {
                         // If the first slot is the same, then the second piece must fit
                         std::cout << "W" << "\n";
@@ -374,11 +382,15 @@ bool Game::fill_slot(Board& board, const Board::board_slot& slot, int id, int i,
         // And also ensures we only have to place one piece if there is space
         std::shared_ptr<Piece> piece = std::make_shared<Square>(id);
 
+        std::cout << "i: " << i << " j: " << j << "\n";
+
         // Square
-        if (check_if_valid_placement(piece, i, j, 0, board)) {
-            board.place_piece(piece, i, j);
+        if (check_if_valid_placement(piece, j, i, 0, board)) {
+            board.place_piece(piece, j, i);
             return true;
         }
+
+        // std::cout << "Not valid square pos\n";
 
         // Triangles
         piece = std::make_shared<Triangle>(id);
