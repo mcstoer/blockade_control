@@ -220,6 +220,7 @@ int main(void)
     Game game(blocks, num_players, &inputHandler);
    
     bool game_finished = false;
+    bool end_game_stats_printed = false;
     Board final_board; // Store game end board
 
     // Create Window
@@ -274,6 +275,28 @@ int main(void)
         } else {
             // Add a delay before updating to game end.
             std::this_thread::sleep_for(std::chrono::milliseconds(500));
+            
+            if (!end_game_stats_printed) {
+                // Get the scores
+                const float red_score = final_board.get_score(0);
+                const int max_squares = Board::board_size * Board::board_size;
+                const float blue_score = max_squares - red_score;
+
+                if (red_score > blue_score) {
+                    std::cout << "Red Wins!\n";
+                } else if (red_score < blue_score) {
+                    std::cout << "Blue Wins!\n";
+                } else {
+                    std::cout << "Tie!\n";
+                }
+
+                std::cout.precision(1);
+                std::cout << "Score\n";
+                std::cout << "Red: " << std::fixed << red_score << " Blue: " << blue_score << "\n";
+
+                end_game_stats_printed = true;
+            }
+
             draw_board_pieces(final_board, blocks, block_width);
         }
         // Draw lines of board and cursor

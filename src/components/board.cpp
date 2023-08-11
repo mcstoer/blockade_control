@@ -1,4 +1,5 @@
 #include <memory>
+#include <cmath>
 
 #include <components/board.hpp>
 #include <components/piece.hpp>
@@ -45,6 +46,34 @@ void Board::clear() {
 
     // Add the initial squares back
     place_initial_squares();
+}
+
+float Board::get_score(int id) const {
+    float score = 0;
+
+    for (auto rowIter = board_.begin(); rowIter != board_.end(); ++rowIter) {
+        for (auto colIter = rowIter->begin(); colIter != rowIter->end(); ++colIter) {
+           
+            if (colIter->first && colIter->first->get_owner_id() == id) {
+                if (colIter->first->get_piece_type() == Piece::piece_type::square) {
+                    score += 1.0f;
+                } else {
+                    score += 0.5f;
+                }
+            }
+            
+            if (colIter->second && colIter->second->get_owner_id() == id) {
+                if (colIter->second->get_piece_type() == Piece::piece_type::square) {
+                    score += 1.0f;
+                } else {
+                    score += 0.5f;
+                }
+            }
+        }
+    }
+
+    // The result should always without decimals
+    return score;
 }
 
 void Board::place_initial_squares() {

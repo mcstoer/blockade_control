@@ -33,6 +33,8 @@ class Board {
 
         // Clears the board of all pieces and reverts it to the initial state.
         void clear();
+
+        float get_score(int id) const;
        
     private:
         board_type board_;
