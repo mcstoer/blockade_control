@@ -15,7 +15,7 @@ find_package(OpenGL REQUIRED)
 
 include_directories("./include")
 
-add_executable(main
+add_executable(blockadecontrol
     src/main.cpp
     include/game.hpp
     src/game.cpp
@@ -36,7 +36,13 @@ add_executable(main
     src/actors/player.cpp
 )
 
-target_link_libraries(main OpenGL::GL glfw)
+target_link_libraries(blockadecontrol OpenGL::GL glfw)
+
+# Install the game program
+INSTALL(TARGETS blockadecontrol DESTINATION bin)
+
+# Install the demo script
+INSTALL(PROGRAMS demo DESTINATION bin)
 
 if (GEN_TESTS)
     # Board tests
