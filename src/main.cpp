@@ -254,7 +254,16 @@ int main(void)
        
         // Run game turns
         game.progress_turn();
-        
+       
+        // Debug placing all pieces
+        Board temp;
+        game.simulate_filling_placements(temp, 0);
+
+        if (true) {
+            std::cout << "drawing\n";
+            draw_board_pieces(temp, blocks, block_width);
+        } else {
+
         // Check if game is done
         Board final_board;
         if (game.check_if_game_is_finished(final_board)) {
@@ -268,10 +277,10 @@ int main(void)
         // Draw pieces of board and cursor
         draw_board_pieces(board, blocks, block_width);
         draw_cursor_piece(cursor, blocks, block_width);
-
+        }
         // Draw lines of board and cursor
         draw_board_lines(blocks, block_width);
-
+        
         glfwSwapBuffers(window);
         glfwPollEvents();
     }

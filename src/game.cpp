@@ -75,7 +75,7 @@ void Game::progress_turn() {
         case Action::PLACE:
 
             if (check_if_valid_placement(current_cursor_.piece, current_cursor_.x,
-                current_cursor_.y, half_squares_placed_)) {
+                current_cursor_.y, half_squares_placed_, board_)) {
 
                 board_.place_piece(current_cursor_.piece, current_cursor_.x, current_cursor_.y);
 
@@ -107,7 +107,8 @@ void Game::progress_turn() {
     std::this_thread::sleep_for(std::chrono::milliseconds(150));
 }
 
-bool Game::check_if_valid_placement(std::shared_ptr<Piece> piece, int x, int y, int half_squares_placed)
+bool Game::check_if_valid_placement(std::shared_ptr<Piece> piece, int x, int y,
+    int half_squares_placed, const Board& target_board)
     const {
     bool is_enough_half_squares_left = check_if_sufficient_half_squares_left(piece, half_squares_placed);
 
@@ -115,13 +116,13 @@ bool Game::check_if_valid_placement(std::shared_ptr<Piece> piece, int x, int y, 
         return false;
     }
 
-    bool is_space_in_slot = check_if_space_in_board_slot(piece, x, y);
+    bool is_space_in_slot = check_if_space_in_board_slot(piece, x, y, target_board);
 
     if (!is_space_in_slot) {
         return false;
     }
 
-    bool is_connected = check_if_connected_to_existing_pieces(piece, x, y);
+    bool is_connected = check_if_connected_to_existing_pieces(piece, x, y, target_board);
 
     if (!is_connected) {
         return false;
@@ -138,8 +139,9 @@ bool Game::check_if_sufficient_half_squares_left(std::shared_ptr<Piece> piece, i
     return true;
 }
 
-bool Game::check_if_space_in_board_slot(std::shared_ptr<Piece> piece, int x, int y) const {
-    const Board::board_pointer board = board_.get_board();
+bool Game::check_if_space_in_board_slot(std::shared_ptr<Piece> piece, int x, int y,
+    const Board& target_board) const {
+    const Board::board_pointer board = target_board.get_board();
     Board::board_slot slot = board[y][x]; // Switch these since board is 2d array
 
     // Space in both slots
@@ -181,9 +183,10 @@ void shift_points_inplace(std::vector<Piece::Point>& points, int x, int y) {
     }
 }
 
-bool Game::check_if_connected_to_existing_pieces(std::shared_ptr<Piece> piece, int x, int y) const {
+bool Game::check_if_connected_to_existing_pieces(std::shared_ptr<Piece> piece, int x, int y,
+    const Board& target_board) const {
     
-    const Board::board_pointer board = board_.get_board();
+    const Board::board_pointer board = target_board.get_board();
     std::vector<Piece::Point> piece_points = piece->get_points();
     const int piece_owner_id = piece->get_owner_id();
 
@@ -372,7 +375,7 @@ bool Game::fill_slot(Board& board, const Board::board_slot& slot, int id, int i,
         std::shared_ptr<Piece> piece = std::make_shared<Square>(id);
 
         // Square
-        if (check_if_valid_placement(piece, i, j, 0)) {
+        if (check_if_valid_placement(piece, i, j, 0, board)) {
             board.place_piece(piece, i, j);
             return true;
         }
@@ -380,7 +383,7 @@ bool Game::fill_slot(Board& board, const Board::board_slot& slot, int id, int i,
         // Triangles
         piece = std::make_shared<Triangle>(id);
         for (int rotations = 0; rotations < 4; ++rotations) {
-            if (check_if_valid_placement(piece, j, i, 0)) {
+            if (check_if_valid_placement(piece, j, i, 0, board)) {
                 board.place_piece(piece, j, i);
                 return true;
             }
@@ -390,7 +393,7 @@ bool Game::fill_slot(Board& board, const Board::board_slot& slot, int id, int i,
         // Rectangles
         piece = std::make_shared<Rectangle>(id);
         for (int rotations = 0; rotations < 4; ++rotations) {
-            if (check_if_valid_placement(piece, j, i, 0)) {
+            if (check_if_valid_placement(piece, j, i, 0, board)) {
                 board.place_piece(piece, j, i);
                 return true;
             }
