@@ -120,14 +120,12 @@ bool Game::check_if_valid_placement(std::shared_ptr<Piece> piece, int x, int y,
     bool is_space_in_slot = check_if_space_in_board_slot(piece, x, y, target_board);
 
     if (!is_space_in_slot) {
-        std::cout << "not enough space\n";
         return false;
     }
 
     bool is_connected = check_if_connected_to_existing_pieces(piece, x, y, target_board);
 
     if (!is_connected) {
-        std::cout << "not connected\n";
         return false;
     }
 
@@ -153,7 +151,6 @@ bool Game::check_if_space_in_board_slot(std::shared_ptr<Piece> piece, int x, int
 
     // Space in the second slot
     } else if (slot.first && !slot.second) {
-        std::cout << "here\n\n\n"; 
         // A square can be the only thing in a slot
         if (piece->get_piece_type() != Piece::piece_type::square 
             || slot.first->get_piece_type() != Piece::piece_type::square) {
@@ -295,8 +292,6 @@ bool Game::check_if_game_is_finished(Board& final_board) {
                
                     // Full slot
                     // Check for a single square that matches
-                    std::cout << "here1" << "\n";
-
                     if (final_slot.first && 
                         final_slot.first->get_piece_type() == Piece::piece_type::square) {
                         
@@ -308,7 +303,6 @@ bool Game::check_if_game_is_finished(Board& final_board) {
 
                         continue;
                     }
-                    std::cout << "here2" << "\n";
                     
                     // Empty slots
                     if (!final_slot.first) {
@@ -322,7 +316,6 @@ bool Game::check_if_game_is_finished(Board& final_board) {
 
                         continue;
                     }
-                    std::cout << "here3" << "\n";
 
                     // Full Slot
                     // Must have the same pieces in slot
@@ -348,16 +341,13 @@ bool Game::check_if_game_is_finished(Board& final_board) {
 
                     // Partially filled slot
                     // Check first slot match since we know there must be something there
-                    std::cout << "here?" << "\n";
                     if (!final_slot.first) {
-                        std::cout << "???" << "\n";
                     }
 
                     bool first_slot_same = *slot.first.get() == *final_slot.first.get()
                             && slot.first->get_owner_id() == final_slot.first->get_owner_id();
                     if (first_slot_same) {
                         // If the first slot is the same, then the second piece must fit
-                        std::cout << "W" << "\n";
                         if (slot.second) {
                             final_board.place_piece(slot.second, j, i);
                         }
@@ -382,15 +372,11 @@ bool Game::fill_slot(Board& board, const Board::board_slot& slot, int id, int i,
         // And also ensures we only have to place one piece if there is space
         std::shared_ptr<Piece> piece = std::make_shared<Square>(id);
 
-        std::cout << "i: " << i << " j: " << j << "\n";
-
         // Square
         if (check_if_valid_placement(piece, j, i, 0, board)) {
             board.place_piece(piece, j, i);
             return true;
         }
-
-        // std::cout << "Not valid square pos\n";
 
         // Triangles
         piece = std::make_shared<Triangle>(id);
@@ -457,7 +443,6 @@ void Game::simulate_filling_placements(Board& board, int id) {
                 for (int h = i_start; h < i_end; ++h) {
                     for (int w = j_start; w < j_end; ++w) {
                         board_pos new_pos = {h, w};
-                        std::cout << "Adding pos: " << h << " " << w << "\n";
                         if (auto search = considered_positions.find(new_pos);
                             search == considered_positions.end()) {
                             potential_positions.insert(new_pos);
@@ -472,8 +457,6 @@ void Game::simulate_filling_placements(Board& board, int id) {
     // Go through all positions
     while (!potential_positions.empty()) {
         board_pos pos = potential_positions.extract(potential_positions.begin()).value();
-
-        std::cout << "Checking position: " << pos.i << " " << pos.j << "\n";
 
         bool filled_slot = fill_slot(board, board_.get_board()[pos.i][pos.j], id, pos.i, pos.j);
 
