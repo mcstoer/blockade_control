@@ -5,6 +5,8 @@
 #include <stdio.h>
 #include <cassert>
 #include <iostream>
+#include <thread>
+#include <chrono>
 
 #include "components/piece.hpp"
 #include "components/triangle.hpp"
@@ -216,7 +218,10 @@ int main(void)
 
     // Game Objects
     Game game(blocks, num_players, &inputHandler);
-    
+   
+    bool game_finished = false;
+    Board final_board; // Store game end board
+
     // Create Window
     GLFWwindow* window;
     glfwSetErrorCallback(error_callback);
@@ -253,30 +258,23 @@ int main(void)
         glMatrixMode(GL_MODELVIEW);
        
         // Run game turns
-        game.progress_turn();
-       
-        if (false) {
-        // Debug placing all pieces
-        Board temp;
-        game.simulate_filling_placements(temp, 0);
-            std::cout << "drawing\n";
-            draw_board_pieces(temp, blocks, block_width);
+        if (!game_finished) {
+            // Check if game is done
+            final_board.clear();
+            game_finished = game.check_if_game_is_finished(final_board);
+            game.progress_turn();
+        
+            // Board and Cursor drawing
+            Board board = game.get_board();
+            Game::Cursor cursor = game.get_cursor();
+
+            // Draw pieces of board and cursor
+            draw_board_pieces(board, blocks, block_width);
+            draw_cursor_piece(cursor, blocks, block_width);
         } else {
-
-        // Check if game is done
-        Board final_board;
-        if (game.check_if_game_is_finished(final_board)) {
-            std::cout << "Game is complete!\n";
-            break;
-        }
-
-        // Board and Cursor drawing
-        Board board = game.get_board();
-        Game::Cursor cursor = game.get_cursor();
-
-        // Draw pieces of board and cursor
-        draw_board_pieces(board, blocks, block_width);
-        draw_cursor_piece(cursor, blocks, block_width);
+            // Add a delay before updating to game end.
+            std::this_thread::sleep_for(std::chrono::milliseconds(500));
+            draw_board_pieces(final_board, blocks, block_width);
         }
         // Draw lines of board and cursor
         draw_board_lines(blocks, block_width);
