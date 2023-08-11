@@ -254,6 +254,12 @@ int main(void)
        
         // Run game turns
         game.progress_turn();
+        
+        // Check if game is done
+        Board final_board;
+        if (game.check_if_game_is_finished(final_board)) {
+            std::cout << "Game is complete!\n";
+        }
 
         // Board and Cursor drawing
         Board board = game.get_board();

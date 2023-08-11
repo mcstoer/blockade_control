@@ -18,7 +18,6 @@ class Player {
 
         void set_input_handler(InputHandler* input_handler);
 
-
     private: 
         int id_;
         InputHandler* input_handler_;

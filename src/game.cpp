@@ -73,7 +73,8 @@ void Game::progress_turn() {
 
         case Action::PLACE:
 
-            if (check_if_valid_placement(current_cursor_.piece, current_cursor_.x, current_cursor_.y)) {
+            if (check_if_valid_placement(current_cursor_.piece, current_cursor_.x,
+                current_cursor_.y, half_squares_placed_)) {
 
                 board_.place_piece(current_cursor_.piece, current_cursor_.x, current_cursor_.y);
 
@@ -105,8 +106,9 @@ void Game::progress_turn() {
     std::this_thread::sleep_for(std::chrono::milliseconds(150));
 }
 
-bool Game::check_if_valid_placement(std::shared_ptr<Piece> piece, int x, int y) const {
-    bool is_enough_half_squares_left = check_if_sufficient_half_squares_left(piece);
+bool Game::check_if_valid_placement(std::shared_ptr<Piece> piece, int x, int y, int half_squares_placed)
+    const {
+    bool is_enough_half_squares_left = check_if_sufficient_half_squares_left(piece, half_squares_placed);
 
     if (!is_enough_half_squares_left) {
         return false;
@@ -127,8 +129,8 @@ bool Game::check_if_valid_placement(std::shared_ptr<Piece> piece, int x, int y) 
     return true;
 }
 
-bool Game::check_if_sufficient_half_squares_left(std::shared_ptr<Piece> piece) const {
-    if (half_squares_placed_ == 1 && piece->get_piece_type() == Piece::piece_type::square) {
+bool Game::check_if_sufficient_half_squares_left(std::shared_ptr<Piece> piece, int half_squares_placed) const {
+    if (half_squares_placed == 1 && piece->get_piece_type() == Piece::piece_type::square) {
         return false;
     }
     
@@ -251,6 +253,159 @@ bool Game::compare_points(std::vector<Piece::Point> points1, std::vector<Piece::
     }
 
     return false;
+}
+
+bool Game::check_if_game_is_finished(Board& final_board) {
+    // Create a board for each actor based on the current board
+    std::vector<Board> boards;
+
+    for (int i = 0; i < num_actors_; ++i) {
+        Board new_board = board_;
+        boards.push_back(new_board);
+    }
+
+    // Treat it as if the actor is the only actor and places until the board is full
+    for (int i = 0; i < num_actors_; ++i) {
+        simulate_filling_placements(boards[i], i);
+    }
+    
+    // Add these pieces to a new board and check for overlap.
+    // If there is overlap it means that the game can't be done since actors can 
+    // place in the same spot.
+
+    Board::board_pointer final_board_arr = final_board.get_board();
+
+    for (Board& board : boards) {
+        Board::board_pointer board_arr = board.get_board();
+        for (int i = 0; i < Board::board_size; ++i) {
+            for (int j = 0; j < Board::board_size; ++j) {
+                 
+                Board::board_slot slot = board_arr[i][j];
+                Board::board_slot final_slot = final_board_arr[i][j];
+
+                // Check if we have anything to place
+                if (slot.first) {
+               
+                    // Full slot
+                    // Check for a single square that matches
+                    if (final_slot.first && 
+                        final_slot.first->get_piece_type() == Piece::piece_type::square) {
+                        
+                        bool first_slot_same = *slot.first.get() == *final_slot.first.get();
+                        if (!first_slot_same) {
+                            return false;
+                        }
+                    }
+                    
+                    // Empty slots
+                    if (!final_slot.first || !final_slot.second) {
+                        // We can use slot.first here since we must have something to place
+                        final_board.place_piece(slot.first, j, i);
+
+                        // Check if we have a second piece to place
+                        if (slot.second) {
+                            final_board.place_piece(slot.second, j, i);
+                        }
+                    }
+
+                    // Full Slot
+                    // Must have the same pieces in slot
+                    // otherwise it's an overlap
+                    if (final_slot.first && final_slot.second) {
+                        bool first_slot_same = *slot.first.get() == *final_slot.first.get();
+                        if (!first_slot_same) {
+                            return false;
+                        } else {
+                            if (slot.second) {
+                                bool second_slot_same = *slot.second.get() ==
+                                    *final_slot.second.get();
+                                if (!second_slot_same) {
+                                    return false;
+                                }
+                            }
+                            continue;
+                        }
+                    }
+
+                    // Partially filled slot
+                    // Check first slot match since we know there must be something there
+                    bool first_slot_same = *slot.first.get() == *final_slot.first.get();
+                    if (first_slot_same) {
+                        // If the first slot is the same, then the second piece must fit
+                        final_board.place_piece(slot.second, j, i);
+                    } else {
+                        return false;
+                    }
+                }
+            }
+        }
+    }
+
+    return true;
+}
+
+void Game::simulate_filling_placements(Board& board, int id) {
+    
+    bool placements_left = true;
+
+    std::cout << "Filling slots.\n";
+
+    // Look until no more can be placed
+    while (placements_left) {
+        placements_left = false;
+
+        std::cout << "Placement looping.\n";
+        for (int i = 0; i < Board::board_size; ++i) {
+            for (int j = 0; j < Board::board_size; ++j) {
+                
+                Board::board_slot slot = board.get_board()[i][j];
+
+                // Check if there is space in the slot
+                if (!slot.first || !slot.second) {
+
+                    // Try to place each type of piece in the slot
+                    // Start with a square since that fills an empty slot the fastest
+                    std::shared_ptr<Piece> piece = std::make_shared<Square>(id);
+
+                    // Square
+                    if (check_if_valid_placement(piece, i, j, 0)) {
+                        board.place_piece(piece, i, j);
+                        placements_left = true;
+                        continue;
+                    }
+
+                    // Triangles
+                    piece = std::make_shared<Triangle>(id);
+                    for (int rotations = 0; rotations < 4; ++rotations) {
+                        if (check_if_valid_placement(piece, j, i, 0)) {
+                            board.place_piece(piece, j, i);
+                            placements_left = true;
+                            break;
+                        }
+                        
+                        piece->rotate();
+                    }
+
+                    // We added a triangle so there should be no space left
+                    if (placements_left) {
+                        continue;
+                    }
+                    
+                    // Rectangles
+                    piece = std::make_shared<Rectangle>(id);
+                    for (int rotations = 0; rotations < 4; ++rotations) {
+                        if (check_if_valid_placement(piece, j, i, 0)) {
+                            board.place_piece(piece, j, i);
+                            placements_left = true;
+                            break;
+                        }
+                        piece->rotate();
+                    }
+                }
+
+            }
+        }
+    }
 }
 
 void Game::reset_cursor(int id) {
