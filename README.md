@@ -1,5 +1,7 @@
 # Blockade Control
 
+A board game for UVic's SENG 475 final project.
+
 ## Game Information
 
 ### Game Rules:
