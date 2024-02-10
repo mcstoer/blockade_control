@@ -7,12 +7,16 @@ Player::Player(int id, InputHandler* input_handler) {
     input_handler_ = input_handler;
 };
 
-Player::~Player() {};
+Player::~Player() = default;
 
+// Chooses an action based on the current key states of the input handler.
 Action Player::do_action() {
    
     Action action = Action::NONE;
 
+    // Priortize movement over other actions to ensure that
+    // rotations, toggles and placements only happen
+    // when stationary.
     if (input_handler_->get_key_state(GLFW_KEY_W)) {
         action = Action::UP;
     } else if (input_handler_->get_key_state(GLFW_KEY_A)) {
