@@ -11,6 +11,8 @@
 #include "components/square.hpp"
 #include "components/rectangle.hpp"
 
+// The number of blocks should be used to determine the board size,
+// but this is left unimplemented due to original time constraints.
 Game::Game(int blocks, int players, InputHandler* input_handler) {
     blocks_ = blocks;
     num_actors_ = players;
@@ -175,7 +177,12 @@ bool Game::check_if_space_in_board_slot(std::shared_ptr<Piece> piece, int x, int
     return false;
 }
 
+// Shifts the piece's points by `x` and `y` based on the origin being in the upper left corner 
+// of the board.
 void shift_points_inplace(std::vector<Piece::Point>& points, int x, int y) {
+
+    // Each board square has a width and height of 2, so the shifts need to be 
+    // in multiplies of 2 to not overlap pieces.
     Piece::Point x_y_shift = {x * 2, y * -2};
 
     for (Piece::Point& p : points) {

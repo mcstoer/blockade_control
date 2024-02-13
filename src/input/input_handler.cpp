@@ -8,6 +8,7 @@ InputHandler::InputHandler(std::vector<int> keys) {
     }
 }
 
+// Searches through the map of key presses to find the state of a key. 
 bool InputHandler::get_key_state(int key) const {
     
     if (auto search = keys_.find(key); search != keys_.end()) {
