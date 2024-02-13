@@ -4,9 +4,10 @@
 #include "components/rectangle.hpp"
 
 
-// Creates rectangle with top left corner of rectangle in top left corner
-// Rectangle is half of a square
-// Points are in -1,1 space and in clockwise order
+// Creates rectangle with top left corner of the rectangle in top left corner
+// of a square. The rectangle takes up half of a square.
+// The origin (0,0) of the space is considered to be at the center of 
+// a square. The points are in clockwise order starting at the middle left.
 Rectangle::Rectangle(int owner_id) : Piece(owner_id) {
     points_.push_back(Point{-1, 0});
     points_.push_back(Point{-1, 1});
@@ -19,6 +20,8 @@ Rectangle::Rectangle(int owner_id) : Piece(owner_id) {
 
 Rectangle::~Rectangle() {};
 
+// Rotating the rectangle is considered to be moving between 4 states for
+// simplicity.
 void Rectangle::rotate() {
 
     switch(rotation_) {

@@ -6,13 +6,20 @@
 class Square: public Piece {
     
     public:
+
+        // Creates a square with a specific owner based on the 
+        // given `owner_id`. The initial orientation of the square is 
+        // with the sides parallel to the board.
         Square(int owner_id);
 
         ~Square();
     
-       void rotate();
+        // Rotates the square 90 degrees clockwise without changing the
+        // position of the points.
+        void rotate();
 
-       std::shared_ptr<Piece> clone() const;
+        // Returns a shared pointer to a clone of the square.
+        std::shared_ptr<Piece> clone() const;
 
 };
 

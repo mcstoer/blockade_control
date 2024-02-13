@@ -5,8 +5,9 @@
 #include "components/triangle.hpp"
 
 
-// Creates triangle pointing towards top left corner
-// Points are in -1,1 space and in clockwise order
+// The triangles takes up half a square.
+// The origin (0,0) of the space is considered to be at the center of 
+// a square. The points are in clockwise order starting from the bottom right.
 Triangle::Triangle(int owner_id) : Piece(owner_id) {
     points_.push_back(Point{-1, -1});
     points_.push_back(Point{-1, 1});
@@ -18,6 +19,8 @@ Triangle::Triangle(int owner_id) : Piece(owner_id) {
 
 Triangle::~Triangle() {};
 
+// Rotating the triangle is considered to be moving between 4 states for 
+// simplicity.
 void Triangle::rotate() {
 
     switch(rotation_) {
