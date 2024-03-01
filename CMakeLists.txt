@@ -13,26 +13,17 @@ include(Sanitizers.cmake)
 find_package(glfw3 REQUIRED)
 find_package(OpenGL REQUIRED)
 
-include_directories("./include")
+include_directories(include)
 
 add_executable(blockadecontrol
     src/main.cpp
-    include/game.hpp
     src/game.cpp
-    include/components/piece.hpp
     src/components/piece.cpp
-    include/components/triangle.hpp
     src/components/triangle.cpp
-    include/components/square.hpp
     src/components/square.cpp
-    include/components/rectangle.hpp
     src/components/rectangle.cpp
-    include/components/board.hpp
     src/components/board.cpp
-    include/input/input_handler.hpp
     src/input/input_handler.cpp
-    include/input/actions.hpp
-    include/actors/player.hpp
     src/actors/player.cpp
 )
 
@@ -48,17 +39,11 @@ if (GEN_TESTS)
     # Board tests
     add_executable(test_board
         tests/test_board.cpp
-        include/components/piece.hpp
         src/components/piece.cpp
-        include/components/triangle.hpp
         src/components/triangle.cpp
-        include/components/square.hpp
         src/components/square.cpp
-        include/components/rectangle.hpp
         src/components/rectangle.cpp
-        include/components/board.hpp
         src/components/board.cpp
     )
-        
 
 endif()
