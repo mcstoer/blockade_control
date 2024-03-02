@@ -36,9 +36,19 @@ INSTALL(TARGETS blockadecontrol DESTINATION bin)
 INSTALL(PROGRAMS demo DESTINATION bin)
 
 if (GEN_TESTS)
+
+    # Piece tests
+    add_executable(test_pieces
+        tests/components/test_pieces.cpp
+        src/components/piece.cpp
+        src/components/triangle.cpp
+        src/components/square.cpp
+        src/components/rectangle.cpp
+    )
+
     # Board tests
     add_executable(test_board
-        tests/test_board.cpp
+        tests/components/test_board.cpp
         src/components/piece.cpp
         src/components/triangle.cpp
         src/components/square.cpp
