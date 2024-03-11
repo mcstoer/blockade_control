@@ -57,6 +57,11 @@ inline bool operator==(const Piece& lhs, const Piece& rhs) {
         return false;
     }
 
+    // Check for same ownership
+    if (lhs.get_owner_id() != rhs.get_owner_id()) {
+        return false;
+    }
+
     // Check for matching points
     std::vector<Piece::Point> lhs_points = lhs.get_points();
     std::vector<Piece::Point> rhs_points = rhs.get_points();
