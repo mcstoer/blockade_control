@@ -21,3 +21,19 @@ bool InputHandler::get_key_state(int key) const {
 void InputHandler::set_key_state(int key, bool isPressed) {
     keys_[key] = isPressed;
 }
+
+double InputHandler::get_mouse_xpos() const {
+    return mouse_xpos_;
+}
+
+void InputHandler::set_mouse_xpos(double xpos) {
+    mouse_xpos_ = xpos;
+}
+
+double InputHandler::get_mouse_ypos() const {
+    return mouse_ypos_;
+}
+
+void InputHandler::set_mouse_ypos(double ypos) {
+    mouse_ypos_ = ypos;
+}

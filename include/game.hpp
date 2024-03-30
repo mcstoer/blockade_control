@@ -88,6 +88,10 @@ class Game {
         // Attempts to fill a slot by placing a new piece and returns true if 
         // successful.
         bool fill_slot(Board& board, const Board::board_slot& slot, int id, int i, int j);
+
+        // Finds the location of the mouse on the board using the world space coordinates
+        // of the mouse.
+        board_pos find_board_location_of_mouse();
 };
 
 #endif 

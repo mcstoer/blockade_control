@@ -35,6 +35,12 @@ void Game::progress_turn() {
 
     Action player_action = current_player.do_action();
 
+    // Get mouse location.
+    // Need to check if the i and j makes sense here.
+    board_pos pos = find_board_location_of_mouse();
+
+    std::cout << "mouse board x: " << pos.i << " mouse board y: " << pos.j << "\n";
+
     // Check if action is valid
 
     // Apply action's effect
@@ -530,6 +536,25 @@ void Game::toggle_cursor_piece() {
         default: 
             assert(false);
     }
+}
+
+Game::board_pos Game::find_board_location_of_mouse() {
+    
+    double xpos = input_handler_->get_mouse_xpos();
+    double ypos = input_handler_->get_mouse_ypos();
+    int size = board_.board_size;
+
+    // The xpos and ypos are centered at the center of the board and in block widths.
+    // The coordinate system for the world space aligns with the board already, so
+    // we just need to convert float values of [-4,4] to a block in [0,7] (for an 8 size board).
+    // This can be done by first adding half the board size (4) to the float values to get a
+    // float value within [0,8] and truncating to get most values within [0,7]. For the 
+    // case where the float value is 8, we can just ignore it since it's on the line of 
+    // the board and not in a board space.
+    int x = xpos + size/2.0f;
+    int y = ypos + size/2.0f;
+
+    return {x,y};
 }
 
 int Game::get_next_actor() {

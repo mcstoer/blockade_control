@@ -1,4 +1,5 @@
 #include <GL/gl.h>
+#include <GL/glu.h>
 #include <GLFW/glfw3.h>
 #include <memory>
 #include <stdlib.h>
@@ -17,8 +18,11 @@
 
 #include "input/input_handler.hpp"
 
-// Global input handler so it can be accessed in callbacks
-InputHandler inputHandler;
+// Stores the data that's needed for callback functions. 
+struct WindowData {
+    InputHandler input_handler;
+    float block_width;
+};
 
 // Structure for storing a colour
 struct Color {
@@ -35,9 +39,43 @@ static void key_callback(GLFWwindow* window, int key, int scancode, int action, 
     if (key == GLFW_KEY_ESCAPE && action == GLFW_PRESS) {
         glfwSetWindowShouldClose(window, GL_TRUE);
     } else {
-        inputHandler.set_key_state(key, action == GLFW_PRESS || action == GLFW_REPEAT);
+        // Get the input handler from the window data. 
+        WindowData* window_data = static_cast<WindowData*>(glfwGetWindowUserPointer(window));
+        window_data->input_handler.set_key_state(key, action == GLFW_PRESS || action == GLFW_REPEAT);
     }
 }
+
+// Converts screen space mouse coordinates to world space coordinates.
+void convert_mouse_screen_coordinates_to_world_coordinates(double mouse_x, double mouse_y, double& world_xpos,
+    double& world_ypos) {
+
+    GLdouble model_view[16];
+    GLdouble projection[16];
+    GLint viewport[4];
+
+    glGetDoublev(GL_MODELVIEW_MATRIX, model_view);
+    glGetDoublev(GL_PROJECTION_MATRIX, projection);
+    glGetIntegerv(GL_VIEWPORT, viewport);
+    
+    GLdouble zpos;
+    gluUnProject(mouse_x, mouse_y, 0.0f, model_view, projection, viewport, &world_xpos, &world_ypos,
+        &zpos);
+}
+
+static void cursor_position_callback(GLFWwindow* window, double xpos, double ypos) {
+
+    double world_xpos;
+    double world_ypos;
+    convert_mouse_screen_coordinates_to_world_coordinates(xpos, ypos, world_xpos, world_ypos);
+    
+    // Get the input handler and block width via the window data pointer.
+    WindowData* window_data = static_cast<WindowData*>(glfwGetWindowUserPointer(window));
+
+    // Scale the world coordinates by block width.
+    window_data->input_handler.set_mouse_xpos(world_xpos / window_data->block_width);
+    window_data->input_handler.set_mouse_ypos(world_ypos / window_data->block_width);
+}
+
 
 // Draws a triangle on the interface given three points, number of blocks on the board,
 // the width of each block, the location of the triangle on the board and the color.
@@ -196,6 +234,10 @@ void draw_cursor_piece(Game::Cursor& cursor, int blocks, float block_width) {
 
 int main(void)
 {
+
+    // Setup window data for callbacks.
+    WindowData window_data;
+
     // Setup key handler
     std::vector<int> key_list = { // Keys we need to care about for the game
         GLFW_KEY_A,
@@ -207,7 +249,7 @@ int main(void)
         GLFW_KEY_SPACE
     };
 
-    inputHandler = InputHandler(key_list);
+    window_data.input_handler = InputHandler(key_list);
 
     // Game Settings
     int blocks = 8;
@@ -215,9 +257,10 @@ int main(void)
 
     // Graphic Settings
     float block_width = 0.2f;
+    window_data.block_width = block_width;
 
     // Game Objects
-    Game game(blocks, num_players, &inputHandler);
+    Game game(blocks, num_players, &window_data.input_handler);
    
     bool game_finished = false;
     bool end_game_stats_printed = false;
@@ -235,7 +278,13 @@ int main(void)
         exit(EXIT_FAILURE);
     }
     glfwMakeContextCurrent(window);
+
+    // Add window data to window.
+    glfwSetWindowUserPointer(window, &window_data);
+
+    // Setup callbacks
     glfwSetKeyCallback(window, key_callback);
+    glfwSetCursorPosCallback(window, cursor_position_callback);
 
     // Setup alpha blending
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
@@ -260,6 +309,7 @@ int main(void)
        
         // Run game turns
         if (!game_finished) {
+
             // Check if game is done
             final_board.clear();
             game_finished = game.check_if_game_is_finished(final_board);
