@@ -57,10 +57,9 @@ inline bool operator==(const Piece& lhs, const Piece& rhs) {
         return false;
     }
 
-    // Check for same ownership
-    if (lhs.get_owner_id() != rhs.get_owner_id()) {
-        return false;
-    }
+    // Note: checking for the same ownership doesn't work since when we 
+    // compare pieces to see if they fit in the same slot as each other
+    // we need to ignore the ownership.
 
     // Check for matching points
     std::vector<Piece::Point> lhs_points = lhs.get_points();

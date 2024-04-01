@@ -158,6 +158,7 @@ TEST_CASE("Square Cloning", "[square, clone]") {
     REQUIRE(*s_clone.get() == s);
 }
 
+// Ownership does not matter for piece comparisons.
 TEST_CASE("Piece Comparison", "[triangle, rectangle, square, comparison]") {
 
     // Triangle Comparisons
@@ -165,7 +166,7 @@ TEST_CASE("Piece Comparison", "[triangle, rectangle, square, comparison]") {
     Triangle t2 = Triangle(0);
     Triangle t3 = Triangle(1);
     CHECK(t1 == t2);
-    CHECK_FALSE(t1 == t3);
+    CHECK(t1 == t3);
 
     t1.rotate();
     t3.rotate();
@@ -182,7 +183,7 @@ TEST_CASE("Piece Comparison", "[triangle, rectangle, square, comparison]") {
     Rectangle r2 = Rectangle(0);
     Rectangle r3 = Rectangle(1);
     CHECK(r1 == r2);
-    CHECK_FALSE(r1 == r3);
+    CHECK(r1 == r3);
 
     r1.rotate();
     CHECK_FALSE(r1 == r2);
@@ -197,11 +198,11 @@ TEST_CASE("Piece Comparison", "[triangle, rectangle, square, comparison]") {
     Square s2 = Square(0);
     Square s3 = Square(1);
     CHECK(r1 == r2);
-    CHECK_FALSE(r1 == r3);
+    CHECK(r1 == r3);
 
     s1.rotate();
     CHECK(s1 == s2);
-    CHECK_FALSE(s1 == s3);
+    CHECK(s1 == s3);
 
     // Across piece comparisons
     CHECK_FALSE(t1 == r1);

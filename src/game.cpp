@@ -35,43 +35,31 @@ void Game::progress_turn() {
 
     Action player_action = current_player.do_action();
 
-    // Get mouse location.
-    // Need to check if the i and j makes sense here.
+    // Get mouse location and use it to calculate the cursor position.
     board_pos pos = find_board_location_of_mouse();
 
-    std::cout << "mouse board x: " << pos.i << " mouse board y: " << pos.j << "\n";
+    // Set cursor position based on board location of mouse.
+    current_cursor_.x = pos.i;
+    current_cursor_.y = pos.j;
 
-    // Check if action is valid
+    const int board_pos_max = board_.board_size - 1;
+
+    if (current_cursor_.x < 0) {
+        current_cursor_.x = 0;
+    } else if (current_cursor_.x > board_pos_max) {
+        current_cursor_.x = board_pos_max;
+    }
+    
+    if (current_cursor_.y < 0) {
+        current_cursor_.y = 0;
+    } else if (current_cursor_.y > board_pos_max) {
+        current_cursor_.y = board_pos_max;
+    }
 
     // Apply action's effect
     switch (player_action) {
         case Action::NONE:
             return; // Try to avoid sleeping to act faster after sleep.
-
-        case Action::UP:
-            if (current_cursor_.y > 0) {
-                --current_cursor_.y;
-            }
-            break;
-
-        case Action::DOWN: 
-            if (current_cursor_.y < Board::board_size - 1) {
-                ++current_cursor_.y;
-            }
-            break;
-
-        case Action::LEFT:
-            if (current_cursor_.x > 0) {
-                --current_cursor_.x;
-            }
-            break;
-
-        case Action::RIGHT: 
-            if (current_cursor_.x < Board::board_size - 1) {
-                ++current_cursor_.x;
-            }
-            break;
-
         case Action::ROTATE: 
             current_cursor_.piece->rotate();
             break;
@@ -81,7 +69,6 @@ void Game::progress_turn() {
             break;
 
         case Action::PLACE:
-
             if (check_if_valid_placement(current_cursor_.piece, current_cursor_.x,
                 current_cursor_.y, half_squares_placed_, board_)) {
 
@@ -107,8 +94,10 @@ void Game::progress_turn() {
             }
             break;
 
-        default: 
-            assert(false);
+        default:
+            // The keyboard controls for moving a piece are ignored since the mouse controls
+            // exist.
+            break;
     }
 
     // Sleep to give the player time to react to the piece movements
@@ -509,9 +498,9 @@ void Game::simulate_filling_placements(Board& board, int id) {
 
 }
 
+// Not resetting the position makes the new cursor appear in the same 
+// position as the old one.
 void Game::reset_cursor(int id) {
-    current_cursor_.x = 0;
-    current_cursor_.y = 0;
     current_cursor_.player_id = id;
     current_cursor_.piece = std::make_shared<Triangle>(id);
 }
