@@ -27,10 +27,12 @@ Action Player::do_action() {
         action = Action::RIGHT;
     } else if (input_handler_->get_key_state(GLFW_KEY_R)) {
         action = Action::ROTATE;
-    } else if (input_handler_->get_key_state(GLFW_KEY_F)) {
+    } else if (input_handler_->get_key_state(GLFW_KEY_F)
+        || input_handler_->get_key_state(GLFW_MOUSE_BUTTON_RIGHT)) {
         action = Action::TOGGLE;
     } else if (input_handler_->get_key_state(GLFW_KEY_ENTER)
-        || input_handler_->get_key_state(GLFW_KEY_SPACE)) {
+        || input_handler_->get_key_state(GLFW_KEY_SPACE)
+        || input_handler_->get_key_state(GLFW_MOUSE_BUTTON_LEFT)) {
         action = Action::PLACE;
     }
 

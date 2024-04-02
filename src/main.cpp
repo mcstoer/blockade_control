@@ -45,6 +45,14 @@ static void key_callback(GLFWwindow* window, int key, int scancode, int action, 
     }
 }
 
+static void mouse_button_callback(GLFWwindow* window, int button, int action, int mods)
+{
+    // Get the input handler from the window data. 
+    WindowData* window_data = static_cast<WindowData*>(glfwGetWindowUserPointer(window));
+    // Either GLFW_PRESS or GLFW_RELEASE.
+    window_data->input_handler.set_key_state(button, action == GLFW_PRESS);
+}
+
 // Converts screen space mouse coordinates to world space coordinates.
 void convert_mouse_screen_coordinates_to_world_coordinates(double mouse_x, double mouse_y, double& world_xpos,
     double& world_ypos) {
@@ -246,7 +254,10 @@ int main(void)
         GLFW_KEY_D,
         GLFW_KEY_R,
         GLFW_KEY_ENTER,
-        GLFW_KEY_SPACE
+        GLFW_KEY_SPACE,
+        
+        GLFW_MOUSE_BUTTON_LEFT,
+        GLFW_MOUSE_BUTTON_RIGHT,
     };
 
     window_data.input_handler = InputHandler(key_list);
@@ -285,6 +296,7 @@ int main(void)
     // Setup callbacks
     glfwSetKeyCallback(window, key_callback);
     glfwSetCursorPosCallback(window, cursor_position_callback);
+    glfwSetMouseButtonCallback(window, mouse_button_callback);
 
     // Setup alpha blending
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
