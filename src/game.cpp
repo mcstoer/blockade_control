@@ -98,11 +98,6 @@ void Game::progress_turn() {
                 std::this_thread::sleep_for(std::chrono::milliseconds(100));
             }
             break;
-
-        default:
-            // The keyboard controls for moving a piece are ignored since the mouse controls
-            // exist.
-            break;
     }
 
     // Sleep to give the player time to react to the piece movements

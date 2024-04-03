@@ -259,14 +259,6 @@ int main(void)
 
     // Setup key handler
     std::vector<int> key_list = { // Keys we need to care about for the game
-        GLFW_KEY_A,
-        GLFW_KEY_W,
-        GLFW_KEY_S,
-        GLFW_KEY_D,
-        GLFW_KEY_R,
-        GLFW_KEY_ENTER,
-        GLFW_KEY_SPACE,
-        
         GLFW_MOUSE_BUTTON_LEFT,
         GLFW_MOUSE_BUTTON_RIGHT,
     };

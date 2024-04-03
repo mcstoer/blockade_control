@@ -3,10 +3,6 @@
 
 // Defines possible actions taken by a player
 enum class Action {
-    LEFT,
-    RIGHT,
-    UP,
-    DOWN,
     ROTATE_CLOCKWISE,
     ROTATE_COUNTERCLOCKWISE,
     TOGGLE,
