@@ -20,7 +20,8 @@ A board game for UVic's SENG 475 final project.
 This project needs C++20 and at minimum CMake 3.26.3.
 
 The libraries needed are
-- GLFW 3 for the graphical interface
+- GLFW 3 for the graphical interface and inputs
+- GLU for translating mouse controls
 - OpenGL for the graphical interface
 - Catch2 v2 for tests
 
@@ -49,13 +50,10 @@ cmake --build build --target install
 To start the game, run the `blockadecontrol` exectuable.
 
 ### Controls:
-- `W` moves the piece up
-- `A`  moves the piece left
-- `S` moves the piece down
-- `D` moves the piece right
-- `R` rotates the piece
-- `F` switches the piece between a triangle, square and rectangle.
-- `SPACE/ENTER` places the piece
-- `ESC` exits the application
+- Use the mouse to move the piece.
+- The right mouse button switches the piece between a triangle, square and rectangle.
+- Scrolling rotates the piece.
+- The left mouse button places the piece.
+- `ESC` exits the application.
 
 
