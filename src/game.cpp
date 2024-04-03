@@ -10,6 +10,7 @@
 #include "components/triangle.hpp"
 #include "components/square.hpp"
 #include "components/rectangle.hpp"
+#include "input/actions.hpp"
 
 // The number of blocks should be used to determine the board size,
 // but this is left unimplemented due to original time constraints.
@@ -60,8 +61,12 @@ void Game::progress_turn() {
     switch (player_action) {
         case Action::NONE:
             return; // Try to avoid sleeping to act faster after sleep.
-        case Action::ROTATE: 
+        case Action::ROTATE_CLOCKWISE: 
             current_cursor_.piece->rotate();
+            break;
+
+        case Action::ROTATE_COUNTERCLOCKWISE: 
+            current_cursor_.piece->rotate(Piece::rotation::counterclockwise);
             break;
 
         case Action::TOGGLE: 

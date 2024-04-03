@@ -37,3 +37,11 @@ double InputHandler::get_mouse_ypos() const {
 void InputHandler::set_mouse_ypos(double ypos) {
     mouse_ypos_ = ypos;
 }
+
+double InputHandler::get_mouse_scroll_yoffset() const {
+    return mouse_yoffset_;
+}
+
+void InputHandler::set_mouse_scroll_yoffset(double yoffset) {
+    mouse_yoffset_ = yoffset;
+}

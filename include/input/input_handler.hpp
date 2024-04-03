@@ -35,11 +35,17 @@ class InputHandler {
         // Sets the mouse y position in the world space in terms of block widths.
         void set_mouse_ypos(double ypos);
 
+        // Gets the current y offset of the mouse's scroll wheel.
+        double get_mouse_scroll_yoffset() const;
+
+        // Sets the mouse's scroll wheel yoffset.
+        void set_mouse_scroll_yoffset(double yoffset);
+
     private:
         handler_type keys_;
         double mouse_xpos_;
         double mouse_ypos_;
-
+        double mouse_yoffset_;
 };
 
 #endif 

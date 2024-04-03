@@ -209,3 +209,20 @@ TEST_CASE("Piece Comparison", "[triangle, rectangle, square, comparison]") {
     CHECK_FALSE(t1 == s1);
     CHECK_FALSE(r1 == s1);
 }
+
+TEST_CASE("Piece Rotation", "[triangle, rectangle, square, rotation]") {
+    Triangle t1 = Triangle(0);
+    Triangle t2 = Triangle(0);
+
+    t1.rotate();
+    t1.rotate();
+    t2.rotate(Piece::rotation::counterclockwise);
+    t2.rotate(Piece::rotation::counterclockwise);
+    CHECK(t1 == t2);
+    
+    t1.rotate();
+    t1.rotate();
+    t2.rotate(Piece::rotation::counterclockwise);
+    t2.rotate(Piece::rotation::counterclockwise);
+    CHECK(t1 == t2);
+}

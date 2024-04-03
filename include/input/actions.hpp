@@ -7,7 +7,8 @@ enum class Action {
     RIGHT,
     UP,
     DOWN,
-    ROTATE,
+    ROTATE_CLOCKWISE,
+    ROTATE_COUNTERCLOCKWISE,
     TOGGLE,
     PLACE,
     NONE

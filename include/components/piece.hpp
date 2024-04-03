@@ -3,6 +3,7 @@
 
 #include <vector>
 #include <memory>
+#include <algorithm>
 #include <iostream>
 
 
@@ -29,6 +30,11 @@ class Piece {
             rectangle
         };
 
+        enum class rotation {
+            clockwise,
+            counterclockwise
+        };
+
         Piece(int owner_id);
 
         virtual ~Piece() {};
@@ -39,7 +45,9 @@ class Piece {
 
         int get_owner_id() const;
 
-        virtual void rotate() = 0;
+        // Rotates the piece either clockwise or counterclockwise, with 
+        // clockwise being default.
+        void rotate(rotation rot = Piece::rotation::clockwise);
 
         virtual std::shared_ptr<Piece> clone() const = 0;
 
@@ -61,9 +69,13 @@ inline bool operator==(const Piece& lhs, const Piece& rhs) {
     // compare pieces to see if they fit in the same slot as each other
     // we need to ignore the ownership.
 
-    // Check for matching points
+    // Check for matching points.
     std::vector<Piece::Point> lhs_points = lhs.get_points();
     std::vector<Piece::Point> rhs_points = rhs.get_points();
+
+    // Pieces with points in different orders are still the same piece.
+    std::sort(lhs_points.begin(), lhs_points.end());
+    std::sort(rhs_points.begin(), rhs_points.end());
 
     if (lhs_points.size() != rhs_points.size()) {
         return false;

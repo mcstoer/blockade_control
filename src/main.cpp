@@ -53,6 +53,17 @@ static void mouse_button_callback(GLFWwindow* window, int button, int action, in
     window_data->input_handler.set_key_state(button, action == GLFW_PRESS);
 }
 
+// `xoffset` and `yoffset` are integer values of either -1, 0 or 1.
+// `yoffset` is 1 for scrolling up, -1 for down and 0 for neutral.
+// `xoffset` is 1 for moving to the right, -1 for left and 0 for neutral.
+static void scroll_callback(GLFWwindow* window, double xoffset, double yoffset)
+{
+    // Get the input handler from the window data. 
+    WindowData* window_data = static_cast<WindowData*>(glfwGetWindowUserPointer(window));
+    // Either GLFW_PRESS or GLFW_RELEASE.
+    window_data->input_handler.set_mouse_scroll_yoffset(yoffset);
+}
+
 // Converts screen space mouse coordinates to world space coordinates.
 void convert_mouse_screen_coordinates_to_world_coordinates(double mouse_x, double mouse_y, double& world_xpos,
     double& world_ypos) {
@@ -297,6 +308,7 @@ int main(void)
     glfwSetKeyCallback(window, key_callback);
     glfwSetCursorPosCallback(window, cursor_position_callback);
     glfwSetMouseButtonCallback(window, mouse_button_callback);
+    glfwSetScrollCallback(window, scroll_callback);
 
     // Setup alpha blending
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);

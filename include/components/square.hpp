@@ -14,10 +14,6 @@ class Square: public Piece {
 
         ~Square();
     
-        // Rotates the square 90 degrees clockwise without changing the
-        // position of the points.
-        void rotate();
-
         // Returns a shared pointer to a clone of the square.
         std::shared_ptr<Piece> clone() const;
 

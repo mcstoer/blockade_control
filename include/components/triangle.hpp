@@ -13,10 +13,6 @@ class Triangle: public Piece {
 
         ~Triangle();
     
-        // Rotates the triangle 90 degrees clockwise by changing the
-        // positions of the points.
-        void rotate();
-
         // Returns a shared pointer to a clone of the triangle.
         std::shared_ptr<Piece> clone() const;
 };

@@ -25,8 +25,15 @@ Action Player::do_action() {
         action = Action::DOWN;
     } else if (input_handler_->get_key_state(GLFW_KEY_D)) {
         action = Action::RIGHT;
-    } else if (input_handler_->get_key_state(GLFW_KEY_R)) {
-        action = Action::ROTATE;
+    } else if (input_handler_->get_key_state(GLFW_KEY_R)
+        || int(input_handler_->get_mouse_scroll_yoffset()) == -1) {
+        action = Action::ROTATE_CLOCKWISE;
+        // Reset scroll offset since it has been processed.
+        input_handler_->set_mouse_scroll_yoffset(0);
+    } else if (int(input_handler_->get_mouse_scroll_yoffset()) == 1) {
+        action = Action::ROTATE_COUNTERCLOCKWISE;
+        // Reset scroll offset since it has been processed.
+        input_handler_->set_mouse_scroll_yoffset(0);
     } else if (input_handler_->get_key_state(GLFW_KEY_F)
         || input_handler_->get_key_state(GLFW_MOUSE_BUTTON_RIGHT)) {
         action = Action::TOGGLE;

@@ -18,33 +18,6 @@ Square::Square(int owner_id) : Piece(owner_id) {
 
 Square::~Square() {};
 
-// Rotating a square only changes the order of the points,
-// so for simplicity the points aren't modified.
-void Square::rotate() {
-
-    switch(rotation_) {
-        case 0:
-            rotation_ = 90;
-            break;
-
-        case 90: 
-            rotation_ = 180;
-            break;
-
-        case 180:
-            rotation_ = 270;
-            break;
-
-        case 270: 
-            rotation_ = 0;
-            break;
-
-        // Should never hit default
-        default:
-            assert(false);
-    }
-}
-
 std::shared_ptr<Piece> Square::clone() const {
     return std::make_shared<Square>(*this);
 }
